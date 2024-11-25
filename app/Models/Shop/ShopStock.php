@@ -30,7 +30,9 @@ class ShopStock extends Model {
      * @var array
      */
     protected $casts = [
-        'data' => 'array',
+        'data'     => 'array',
+        'end_at'   => 'datetime',
+        'start_at' => 'datetime',
     ];
 
     /**
@@ -126,6 +128,9 @@ class ShopStock extends Model {
                 break;
             case 'monthly':
                 $date = Carbon::now()->startOfMonth()->timestamp;
+                break;
+            case 'biweekly':
+                $date = Carbon::now()->startOfWeek()->subWeek()->timestamp;
                 break;
             case 'weekly':
                 $date = strtotime('last sunday');

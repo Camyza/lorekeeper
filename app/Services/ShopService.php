@@ -143,8 +143,8 @@ class ShopService extends Service {
                 'range'                    => $data['range'] ?? 0,
                 'disallow_transfer'        => $data['disallow_transfer'] ?? 0,
                 'is_timed_stock'           => isset($data['is_timed_stock']),
-                'start_at'                 => $data['start_at'],
-                'end_at'                   => $data['end_at'],
+                'start_at'                 => $data['stock_start_at'],
+                'end_at'                   => $data['stock_end_at'],
             ]);
 
             if (isset($data['cost_type']) && isset($data['cost_quantity'])) {
@@ -204,8 +204,8 @@ class ShopService extends Service {
                 'range'                    => $data['range'] ?? 0,
                 'disallow_transfer'        => $data['disallow_transfer'] ?? 0,
                 'is_timed_stock'           => isset($data['is_timed_stock']),
-                'start_at'                 => $data['start_at'],
-                'end_at'                   => $data['end_at'],
+                'start_at'                 => $data['stock_start_at'],
+                'end_at'                   => $data['stock_end_at'],
             ]);
 
             $stock->costs()->delete();

@@ -123,14 +123,15 @@
                             <div class="col-{{ $stock->item->has_image ? '8' : '10' }}">
                                 <div><a href="{{ $stock->item->idUrl }}"><strong>{{ $stock->item->name }} - {{ $stock->stock_type }}</strong></a></div>
                                 <div><strong>Cost: </strong> {!! $stock->displayCosts() ?? 'Free' !!}</div>
-                                <div class="row">
-                                    @if (!$stock->is_visible)
-                                        <div class="col-2"> <i class="fas fa-eye-slash"></i></div>
-                                    @endif
-                                    @if ($stock->is_timed_stock)
-                                        <div class="col-2"> <i class="fas fa-clock"></i></div>
-                                    @endif
-                                </div>
+                                @if (!$stock->is_visible)
+                                    <div><i class="fas fa-eye-slash"></i></div>
+                                @endif
+                                @if ($stock->is_timed_stock)
+                                    <div class="row no-gutters">
+                                        <i class="fas fa-clock mt-1 mr-1"></i>
+                                        {!! '<div>' . ($stock->start_at ? pretty_date($stock->start_at) : 'Now') . ' - ' . ($stock->end_at ?  pretty_date($stock->end_at) : 'Always') . '</div>' !!}
+                                    </div>
+                                @endif
                                 @if ($stock->is_limited_stock)
                                     <div>Stock: {{ $stock->quantity }}</div>
                                 @endif
@@ -138,9 +139,11 @@
                                     <div>Restock: {!! $stock->restock ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>' !!}</div>
                                 @endif
                                 @if ($stock->purchase_limit)
-                                    <div class="text-danger">Max {{ $stock->purchase_limit }} @if ($stock->purchase_limit_timeframe !== 'lifetime')
+                                    <div class="text-danger">Max {{ $stock->purchase_limit }} 
+                                        @if ($stock->purchase_limit_timeframe !== 'lifetime')
                                             {{ $stock->purchase_limit_timeframe }}
-                                        @endif per user</div>
+                                        @endif per user
+                                    </div>
                                 @endif
                                 @if ($stock->disallow_transfer)
                                     <div class="text-danger">Cannot be transferred</div>

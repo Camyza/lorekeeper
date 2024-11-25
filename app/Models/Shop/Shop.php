@@ -4,6 +4,7 @@ namespace App\Models\Shop;
 
 use App\Models\Item\Item;
 use App\Models\Model;
+use Carbon\Carbon;
 
 class Shop extends Model {
     /**
@@ -66,10 +67,24 @@ class Shop extends Model {
      */
     public function displayStock($model = null, $type = null) {
         if (!$model || !$type) {
-            return $this->belongsToMany(Item::class, 'shop_stock')->where('stock_type', 'Item')->withPivot('item_id', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'purchase_limit', 'id')->wherePivot('is_visible', 1);
+            return $this->belongsToMany(Item::class, 'shop_stock')->where('stock_type', 'Item')->withPivot('item_id', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'purchase_limit', 'id', 'is_timed_stock')
+                ->wherePivot('is_visible', 1)->where(function ($query) {
+                    $query->whereNull('shop_stock.start_at')
+                          ->orWhere('shop_stock.start_at', '<', Carbon::now());
+                })->where(function ($query) {
+                    $query->whereNull('shop_stock.end_at')
+                          ->orWhere('shop_stock.end_at', '>', Carbon::now());
+                });                
         }
 
-        return $this->belongsToMany($model, 'shop_stock', 'shop_id', 'item_id')->where('stock_type', $type)->withPivot('item_id', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'purchase_limit', 'id')->wherePivot('is_visible', 1);
+        return $this->belongsToMany($model, 'shop_stock', 'shop_id', 'item_id')->where('stock_type', $type)->withPivot('item_id', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'purchase_limit', 'id', 'is_timed_stock')
+            ->wherePivot('is_visible', 1)->where(function ($query) {
+                $query->whereNull('shop_stock.start_at')
+                      ->orWhere('shop_stock.start_at', '<', Carbon::now());
+            })->where(function ($query) {
+                $query->whereNull('shop_stock.end_at')
+                      ->orWhere('shop_stock.end_at', '>', Carbon::now());
+            });
     }
 
     /**********************************************************************************************

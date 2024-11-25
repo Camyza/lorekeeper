@@ -185,7 +185,7 @@ class ShopController extends Controller {
     public function postEditShopStock(Request $request, ShopService $service, $id) {
         $data = $request->only([
             'shop_id', 'item_id', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'purchase_limit', 'purchase_limit_timeframe', 'is_fto', 'stock_type', 'is_visible',
-            'restock', 'restock_quantity', 'restock_interval', 'range', 'disallow_transfer', 'is_timed_stock', 'start_at', 'end_at',
+            'restock', 'restock_quantity', 'restock_interval', 'range', 'disallow_transfer', 'is_timed_stock', 'stock_start_at', 'stock_end_at',
             'cost_type', 'cost_quantity', 'cost_id', 'group', 'can_group_use_coupon',
         ]);
         if ($service->editShopStock(ShopStock::find($id), $data, Auth::user())) {
@@ -212,7 +212,7 @@ class ShopController extends Controller {
     public function postCreateShopStock(Request $request, ShopService $service, $id) {
         $data = $request->only([
             'shop_id', 'item_id', 'currency_id', 'cost', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'purchase_limit', 'purchase_limit_timeframe', 'is_fto', 'stock_type', 'is_visible',
-            'restock', 'restock_quantity', 'restock_interval', 'range', 'disallow_transfer', 'is_timed_stock', 'start_at', 'end_at',
+            'restock', 'restock_quantity', 'restock_interval', 'range', 'disallow_transfer', 'is_timed_stock', 'stock_start_at', 'stock_end_at',
             'cost_type', 'cost_quantity', 'cost_id', 'group',
         ]);
         if ($service->createShopStock(Shop::find($id), $data, Auth::user())) {

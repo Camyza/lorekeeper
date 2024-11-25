@@ -6,6 +6,11 @@
     @endif
 
     <h5>Stock</h5>
+    <p>
+        Random stock will select a random item from the list below on creation / edit.
+        <br/>
+        On restock, if the item is random, it will select a new random item.
+    </p>
     <div class="row">
         <div class="col-md-6 form-group">
             {!! Form::label('stock_type', 'Type') !!}
@@ -165,12 +170,12 @@
     <div class="stock-timed-quantity {{ $stock->is_timed_stock ? '' : 'hide' }}">
         <div class="row">
             <div class="col-md-6 form-group">
-                {!! Form::label('start_at', 'Start Time') !!} {!! add_help('Stock will cycle in at this date.') !!}
-                {!! Form::text('start_at', $stock->start_at, ['class' => 'form-control datepicker']) !!}
+                {!! Form::label('stock_start_at', 'Start Time') !!} {!! add_help('Stock will cycle in at this date.') !!}
+                {!! Form::text('stock_start_at', $stock->start_at, ['class' => 'form-control datepicker']) !!}
             </div>
             <div class="col-md-6 form-group">
-                {!! Form::label('end_at', 'End Time') !!} {!! add_help('Stock will cycle out at this date.') !!}
-                {!! Form::text('end_at', $stock->end_at, ['class' => 'form-control datepicker']) !!}
+                {!! Form::label('stock_end_at', 'End Time') !!} {!! add_help('Stock will cycle out at this date.') !!}
+                {!! Form::text('stock_end_at', $stock->end_at, ['class' => 'form-control datepicker']) !!}
             </div>
         </div>
     </div>

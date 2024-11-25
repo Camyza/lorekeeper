@@ -33,6 +33,14 @@
         </div>
     @endif
 
+    @if ($stock->is_timed_stock)
+        <div class="alert alert-info text-center">
+            This item is available for a limited time!
+            <br />
+            <i class="fas fa-clock"></i> {!! $stock->start_at ? pretty_date($stock->start_at) : 'Now' !!} - {!! $stock->end_at ? pretty_date($stock->end_at) : 'Always' !!}
+        </div>
+    @endif
+
     @if ($stock->shop->use_coupons)
         <div class="alert alert-success">You can use coupons in this store!</div>
         @if ($shop->allowed_coupons && count(json_decode($shop->allowed_coupons, 1)))
