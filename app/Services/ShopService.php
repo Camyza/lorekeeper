@@ -125,11 +125,9 @@ class ShopService extends Service {
                 throw new \Exception('You must select an item.');
             }
 
-            $shop->stock()->create([
+            $stock = $shop->stock()->create([
                 'shop_id'                  => $shop->id,
                 'item_id'                  => $data['item_id'],
-                'currency_id'              => $data['currency_id'],
-                'cost'                     => $data['cost'],
                 'use_user_bank'            => isset($data['use_user_bank']),
                 'use_character_bank'       => isset($data['use_character_bank']),
                 'is_fto'                   => isset($data['is_fto']),
@@ -148,6 +146,17 @@ class ShopService extends Service {
                 'start_at'                 => $data['start_at'],
                 'end_at'                   => $data['end_at'],
             ]);
+
+            if (isset($data['cost_type']) && isset($data['cost_quantity'])) {
+                foreach ($data['cost_type'] as $key => $costType) {
+                    $stock->costs()->create([
+                        'cost_type' => $costType,
+                        'cost_id'   => $data['cost_id'][$key],
+                        'quantity'  => $data['cost_quantity'][$key],
+                        'group'     => $data['group'][$key] ?? 1,
+                    ]);
+                }
+            }
 
             return $this->commitReturn($shop);
         } catch (\Exception $e) {
@@ -180,8 +189,6 @@ class ShopService extends Service {
             $stock->update([
                 'shop_id'                  => $stock->shop->id,
                 'item_id'                  => $data['item_id'],
-                'currency_id'              => $data['currency_id'],
-                'cost'                     => $data['cost'],
                 'use_user_bank'            => isset($data['use_user_bank']),
                 'use_character_bank'       => isset($data['use_character_bank']),
                 'is_fto'                   => isset($data['is_fto']),
@@ -199,6 +206,35 @@ class ShopService extends Service {
                 'is_timed_stock'           => isset($data['is_timed_stock']),
                 'start_at'                 => $data['start_at'],
                 'end_at'                   => $data['end_at'],
+            ]);
+
+            $stock->costs()->delete();
+
+            if (isset($data['cost_type']) && isset($data['cost_quantity'])) {
+                foreach ($data['cost_type'] as $key => $costType) {
+                    $stock->costs()->create([
+                        'cost_type' => $costType,
+                        'cost_id'   => $data['cost_id'][$key],
+                        'quantity'  => $data['cost_quantity'][$key],
+                        'group'     => $data['group'][$key] ?? 1,
+                    ]);
+                }
+            }
+
+            // add coupon usage based on groups
+            $stockData = [
+                'can_group_use_coupon' => [],
+            ];
+            if (isset($data['can_group_use_coupon'])) {
+                foreach ($data['can_group_use_coupon'] as $group => $canUseCoupon) {
+                    // check if the group exists in the costs, since it may have been removed
+                    if ($stock->costs()->where('group', $group)->exists() && $canUseCoupon) {
+                        $stockData['can_group_use_coupon'][] = $group;
+                    }
+                }
+            }
+            $stock->update([
+                'data' => $stockData,
             ]);
 
             return $this->commitReturn($stock);

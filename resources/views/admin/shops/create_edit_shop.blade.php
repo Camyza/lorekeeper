@@ -107,47 +107,45 @@
         <div class="row">
             @foreach ($shop->stock as $stock)
                 <div class="col-md-4 mb-3">
-                    <div class="card h-100 p-3 my-1">
+                    <div class="card h-100 p-3">
                         <div class="row">
                             @if ($stock->item->has_image)
-                                <div class="col-2">
-                                    <img src="{{ $stock->item->imageUrl }}" style="width: 100%;" alt="{{ $stock->item->name }}">
+                                <div class="col-4">
+                                    <img src="{{ $stock->item->imageUrl }}" class="img-fluid" alt="{{ $stock->item->name }}">
                                 </div>
                             @endif
                             <div class="col-{{ $stock->item->has_image ? '8' : '10' }}">
                                 <div><a href="{{ $stock->item->idUrl }}"><strong>{{ $stock->item->name }} - {{ $stock->stock_type }}</strong></a></div>
-                                <div><strong>Cost: </strong> {!! $stock->currency->display($stock->cost) !!}</div>
-                            </div>
-                            <div class="row">
-                                @if (!$stock->is_visible)
-                                    <div class="col-2"> <i class="fas fa-eye-slash"></i></div>
+                                <div><strong>Cost: </strong> {!! $stock->displayCosts() ?? 'Free' !!}</div>
+                                <div class="row">
+                                    @if (!$stock->is_visible)
+                                        <div class="col-2"> <i class="fas fa-eye-slash"></i></div>
+                                    @endif
+                                    @if ($stock->is_timed_stock)
+                                        <div class="col-2"> <i class="fas fa-clock"></i></div>
+                                    @endif
+                                </div>
+                                @if ($stock->is_limited_stock)
+                                    <div>Stock: {{ $stock->quantity }}</div>
                                 @endif
-                                @if ($stock->is_timed_stock)
-                                    <div class="col-2"> <i class="fas fa-clock"></i></div>
+                                @if ($stock->is_limited_stock)
+                                    <div>Restock: {!! $stock->restock ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>' !!}</div>
+                                @endif
+                                @if ($stock->purchase_limit)
+                                    <div class="text-danger">Max {{ $stock->purchase_limit }} @if ($stock->purchase_limit_timeframe !== 'lifetime')
+                                            {{ $stock->purchase_limit_timeframe }}
+                                        @endif per user</div>
+                                @endif
+                                @if ($stock->disallow_transfer)
+                                    <div class="text-danger">Cannot be transferred</div>
                                 @endif
                             </div>
                         </div>
-                        @if ($stock->is_limited_stock)
-                            <div>Stock: {{ $stock->quantity }}</div>
-                        @endif
-                        @if ($stock->is_limited_stock)
-                            <div>Restock: {!! $stock->restock ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>' !!}</div>
-                        @endif
-                        @if ($stock->purchase_limit)
-                            <div class="text-danger">Max {{ $stock->purchase_limit }} @if ($stock->purchase_limit_timeframe !== 'lifetime')
-                                    {{ $stock->purchase_limit_timeframe }}
-                                @endif per user</div>
-                        @endif
-                        @if ($stock->disallow_transfer)
-                            <div class="text-danger">Cannot be transferred</div>
-                        @endif
-                        <div class="text-right">
+                        <div class="text-right mb-0">
                             <button class="btn btn-primary" onclick="editStock({{ $stock->id }})">
-                                {{-- pencil icon --}}
                                 <i class="fas fa-pencil-alt"></i>
                             </button>
                             <div class="btn btn-danger" onclick="deleteStock({{ $stock->id }})">
-                                {{-- trash icon --}}
                                 <i class="fas fa-trash"></i>
                             </div>
                         </div>

@@ -14,8 +14,8 @@ class ShopStock extends Model {
      * @var array
      */
     protected $fillable = [
-        'shop_id', 'item_id', 'currency_id', 'cost', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'sort', 'purchase_limit', 'purchase_limit_timeframe', 'is_fto', 'stock_type', 'is_visible',
-        'restock', 'restock_quantity', 'restock_interval', 'range', 'disallow_transfer', 'is_timed_stock', 'start_at', 'end_at',
+        'shop_id', 'item_id', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'sort', 'purchase_limit', 'purchase_limit_timeframe', 'is_fto', 'stock_type', 'is_visible',
+        'restock', 'restock_quantity', 'restock_interval', 'range', 'disallow_transfer', 'is_timed_stock', 'start_at', 'end_at', 'costs', 'data',
     ];
 
     /**
@@ -32,6 +32,15 @@ class ShopStock extends Model {
      */
     public static $createRules = [
         'purchase_limit_timeframe' => 'in:lifetime,yearly,monthly,weekly,daily',
+    ];
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'data' => 'array',
     ];
 
     /**********************************************************************************************
@@ -57,10 +66,55 @@ class ShopStock extends Model {
     }
 
     /**
-     * Get the currency the item must be purchased with.
+     * Get the costs associated with this stock.
      */
-    public function currency() {
-        return $this->belongsTo(Currency::class);
+    public function costs() {
+        return $this->hasMany(ShopStockCost::class, 'shop_stock_id');
+    }
+
+    /**********************************************************************************************
+
+        SCOPES
+
+    **********************************************************************************************/
+
+    /**
+     * Scopes active stock.
+     *
+     * @param mixed $query
+     */
+    public function scopeActive($query) {
+        return $query->where('is_visible', 1);
+    }
+
+    /**********************************************************************************************
+
+        ATTRIBUTES
+
+    **********************************************************************************************/
+
+    /**
+     * Returns all of the existing groups based on the costs.
+     */
+    public function getGroupsAttribute() {
+        return $this->costs()->get()->pluck('group')->unique();
+    }
+
+    /**
+     * Makes the costs an array of arrays.
+     */
+    public function getCostGroupsAttribute() {
+        $costs = $this->costs()->get()->groupBy('group');
+        $groupedCosts = [];
+        foreach ($costs as $group => $costGroup) {
+            $assets = createAssetsArray();
+            foreach ($costGroup as $cost) {
+                addAsset($assets, $cost->item, $cost->quantity);
+            }
+            $groupedCosts[$group] = $assets;
+        }
+
+        return $groupedCosts;
     }
 
     /*
@@ -94,18 +148,35 @@ class ShopStock extends Model {
     **********************************************************************************************/
 
     /**
-     * Scopes active stock.
-     *
-     * @param mixed $query
+     * Returns formatted lists of costs for display.
      */
-    public function scopeActive($query) {
-        return $query->where('is_visible', 1);
+    public function displayCosts() {
+        $display = [];
+        $costs = $this->costGroups;
+        foreach ($costs as $group => $groupCosts) {
+            $display[] = createRewardsString($groupCosts);
+        }
+
+        return count($display) ? implode(' <i>OR</i> ', $display) : null;
     }
 
     /**
-     * Makes the cost an integer for display.
+     * Returns the costs in the format group => rewardString for a form select.
      */
-    public function getDisplayCostAttribute() {
-        return (int) $this->cost;
+    public function costForm() {
+        $costs = $this->costGroups;
+        $select = [];
+        foreach ($costs as $group => $groupCosts) {
+            $select[$group] = createRewardsString($groupCosts, false);
+        }
+
+        return $select;
+    }
+
+    /**
+     * Returns if a group can use coupons.
+     */
+    public function canGroupUseCoupons($group) {
+        return in_array($group, $this->data['can_group_use_coupon'] ?? []);
     }
 }

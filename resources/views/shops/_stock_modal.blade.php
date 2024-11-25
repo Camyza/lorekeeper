@@ -4,7 +4,7 @@
     <div class="text-center mb-3">
         <div class="mb-1"><a href="{{ $stock->item->idUrl }}"><img src="{{ $stock->item->imageUrl }}" alt="{{ $stock->item->name }}" /></a></div>
         <div><a href="{{ $stock->item->idUrl }}"><strong>{{ $stock->item->name }}</strong></a></div>
-        <div><strong>Cost: </strong> {!! $stock->currency->display($stock->displayCost) !!}</div>
+        <div><strong>Cost: </strong> {!! $stock->displayCosts() ?? 'Free' !!}</div>
         @if ($stock->is_limited_stock)
             <div>Stock: {{ $stock->quantity }}</div>
         @endif
@@ -66,10 +66,24 @@
                 {!! Form::open(['url' => 'shops/buy']) !!}
                 {!! Form::hidden('shop_id', $shop->id) !!}
                 {!! Form::hidden('stock_id', $stock->id) !!}
+
+                @if ($stock->costs()->get()->pluck('group')->unique()->count() > 1)
+                    <div class="form-group">
+                        {!! Form::label('cost_group', 'Choose Purchase Method:') !!}
+                        {!! Form::select('cost_group', $stock->costForm(), null, ['class' => 'form-control mb-3']) !!}
+                    </div>
+                @endif
+
                 {!! Form::label('quantity', 'Quantity') !!}
                 {!! Form::selectRange('quantity', 1, $quantityLimit, 1, ['class' => 'form-control mb-3']) !!}
                 @if ($stock->use_user_bank && $stock->use_character_bank)
-                    <p>This item can be paid for with either your user account bank, or a character's bank. Please choose which you would like to use.</p>
+                    <p>
+                        This item can be paid for with either your user account bank, or a character's bank. Please choose which you would like to use.
+                        <br />
+                        <strong>
+                            Note: Only currencies are taken from character banks. Items are taken from user banks.
+                        </strong>
+                    </p>
                     <div class="form-group">
                         <div>
                             <label class="h5">{{ Form::radio('bank', 'user', true, ['class' => 'bank-select mr-1']) }} User Bank</label>
@@ -81,7 +95,7 @@
                                     <p>Enter the code of the character you would like to use to purchase the item.</p>
                                     <div class="form-group">
                                         {!! Form::label('slug', 'Character Code') !!}
-                                        {!! Form::text('slug', null, ['class' => 'form-control']) !!}
+                                        {!! Form::select('slug', Auth::user()->characters()->get()->pluck('fullName', 'id'), ['class' => 'form-control']) !!}
                                     </div>
                                 </div>
                             </div>
@@ -91,7 +105,13 @@
                     <p>This item will be paid for using your user account bank.</p>
                     {!! Form::hidden('bank', 'user') !!}
                 @elseif($stock->use_character_bank)
-                    <p>This item must be paid for using a character's bank. Enter the code of the character whose bank you would like to use to purchase the item.</p>
+                    <p>
+                        This item must be paid for using a character's bank. Enter the code of the character whose bank you would like to use to purchase the item.
+                        <br />
+                        <strong>
+                            Note: Only currencies are taken from character banks. Items are taken from user banks.
+                        </strong>
+                    </p>
                     {!! Form::hidden('bank', 'character') !!}
                     <div class="form-group">
                         {!! Form::label('slug', 'Character Code') !!}

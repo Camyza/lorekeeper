@@ -118,7 +118,6 @@ class ShopController extends Controller {
             'shop'       => $shop,
             'stocks'     => $stocks,
             'shops'      => Shop::where('is_active', 1)->orderBy('sort', 'DESC')->get(),
-            'currencies' => Currency::whereIn('id', ShopStock::where('shop_id', $shop->id)->pluck('currency_id')->toArray())->get()->keyBy('id'),
         ]);
     }
 
@@ -192,7 +191,7 @@ class ShopController extends Controller {
      */
     public function postBuy(Request $request, ShopManager $service) {
         $request->validate(ShopLog::$createRules);
-        if ($service->buyStock($request->only(['stock_id', 'shop_id', 'slug', 'bank', 'quantity', 'use_coupon', 'coupon']), Auth::user())) {
+        if ($service->buyStock($request->only(['stock_id', 'shop_id', 'slug', 'bank', 'quantity', 'use_coupon', 'coupon', 'cost_group']), Auth::user())) {
             flash('Successfully purchased item.')->success();
         } else {
             foreach ($service->errors()->getMessages()['error'] as $error) {

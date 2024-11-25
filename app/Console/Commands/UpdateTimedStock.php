@@ -7,7 +7,8 @@ use App\Models\Shop\ShopStock;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 
-class update_timed_stock extends Command {
+class UpdateTimedStock extends Command {
+
     /**
      * The name and signature of the console command.
      *

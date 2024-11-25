@@ -65,7 +65,7 @@
                                         </div>
                                         <div>
                                             <a href="#" class="inventory-stack inventory-stack-name"><strong>{{ $item->name }}</strong></a>
-                                            <div><strong>Cost: </strong> {!! $currencies[$item->pivot->currency_id]->display((int) $item->pivot->cost) !!}</div>
+                                            <div><strong>Cost: </strong> {!! $shop->displayStockCosts($item->pivot->id) ?? 'Free' !!}</div>
                                             @if ($item->pivot->is_limited_stock)
                                                 <div>Stock: {{ $item->pivot->quantity }}</div>
                                             @endif

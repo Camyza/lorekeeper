@@ -97,7 +97,7 @@ function getAssetModelString($type, $namespaced = true) {
             }
             break;
 
-        case 'currencies':
+        case 'currencies': case 'currency':
             if ($namespaced) {
                 return '\App\Models\Currency\Currency';
             } else {
@@ -274,6 +274,40 @@ function parseAssetData($array) {
 }
 
 /**
+ * Returns if two asset arrays are identical.
+ * 
+ * @param array $first
+ * @param array $second
+ * 
+ * @return bool
+ */
+function compareAssetArrays($first, $second, $isCharacter = false, $absQuantities = false) {
+    $keys = getAssetKeys($isCharacter);
+    foreach ($keys as $key) {
+        if (count($first[$key]) != count($second[$key])) {
+            return false;
+        }
+        foreach ($first[$key] as $id => $asset) {
+            if (!isset($second[$key][$id])) {
+                return false;
+            }
+
+            if ($absQuantities) {
+                if (abs($asset['quantity']) != abs($second[$key][$id]['quantity'])) {
+                    return false;
+                }
+            } else {
+                if ($asset['quantity'] != $second[$key][$id]['quantity']) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+/**
  * Distributes the assets in an assets array to the given recipient (user).
  * Loot tables will be rolled before distribution.
  *
@@ -299,14 +333,23 @@ function fillUserAssets($assets, $sender, $recipient, $logType, $data) {
             $service = new App\Services\InventoryManager;
             foreach ($contents as $asset) {
                 if (!$service->creditItem($sender, $recipient, $logType, $data, $asset['asset'], $asset['quantity'])) {
+                    foreach ($service->errors()->getMessages()['error'] as $error) {
+                        \Log::error($error);
+                    }
                     return false;
                 }
             }
         } elseif ($key == 'currencies' && count($contents)) {
             $service = new App\Services\CurrencyManager;
             foreach ($contents as $asset) {
-                if (!$service->creditCurrency($sender, $recipient, $logType, $data['data'], $asset['asset'], $asset['quantity'])) {
-                    return false;
+                if ($asset['quantity'] < 0) {
+                    if (!$service->debitCurrency($sender, $recipient, $logType, $data['data'], $asset['asset'], abs($asset['quantity']))) {
+                        return false;
+                    }
+                } else {
+                    if (!$service->creditCurrency($sender, $recipient, $logType, $data['data'], $asset['asset'], $asset['quantity'])) {
+                        return false;
+                    }
                 }
             }
         } elseif ($key == 'raffle_tickets' && count($contents)) {
@@ -392,11 +435,15 @@ function fillCharacterAssets($assets, $sender, $recipient, $logType, $data, $sub
  *
  * @return string
  */
-function createRewardsString($array) {
+function createRewardsString($array, $useDisplayName = true, $absQuantities = false) {
     $string = [];
     foreach ($array as $key => $contents) {
         foreach ($contents as $asset) {
-            $string[] = $asset['asset']->displayName.' x'.$asset['quantity'];
+            if ($useDisplayName) {
+                $string[] = $asset['asset']->displayName.' x'.($absQuantities ? abs($asset['quantity']) : $asset['quantity']);
+            } else {
+                $string[] = $asset['asset']->name.' x'.($absQuantities ? abs($asset['quantity']) : $asset['quantity']);
+            }
         }
     }
     if (!count($string)) {
