@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Currency\Currency;
 use App\Models\Item\Item;
 use App\Models\Item\ItemTag;
 use App\Models\Shop\Shop;

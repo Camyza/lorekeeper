@@ -2,10 +2,8 @@
 
 namespace App\Models\Shop;
 
-use App\Models\Currency\Currency;
 use App\Models\Item\Item;
 use App\Models\Model;
-use Carbon\Carbon;
 
 class ShopStockCost extends Model {
     /**
@@ -50,7 +48,7 @@ class ShopStockCost extends Model {
      * Gets all of the other costs for this stock in the same group.
      */
     public function group() {
-        return $this->hasMany(ShopStockCost::class, 'group');
+        return $this->hasMany(self::class, 'group');
     }
 
     /**********************************************************************************************

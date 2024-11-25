@@ -64,7 +64,7 @@ class ShopManager extends Service {
                     throw new \Exception('There are multiple cost groups for this item, please select one.');
                 }
             }
-            
+
             // Check if the user can only buy a limited number of this item, and if it does, check that the user hasn't hit the limit
             if ($shopStock->purchase_limit && $this->checkPurchaseLimitReached($shopStock, $user)) {
                 throw new \Exception('You have already purchased the maximum amount of this item you can buy.');
@@ -98,7 +98,7 @@ class ShopManager extends Service {
                 if (!$shopStock->costs()->count()) {
                     throw new \Exception('Cannot use a coupon on an item that is free.');
                 }
-                
+
                 // if the coupon isn't infinite kill it
                 if (!$coupon['infinite']) {
                     if (!(new InventoryManager)->debitStack($user, 'Coupon Used', ['data' => 'Coupon used in purchase of '.$shopStock->item->name.' from '.$shop->name], $userItem, 1)) {
@@ -159,7 +159,7 @@ class ShopManager extends Service {
                         if (!$cost->item->is_character_owned) {
                             throw new \Exception("You cannot use a character's bank to pay for this item.");
                         }
-                        
+
                         addAsset($characterCostAssets, $cost->item, -$costQuantity);
                     }
                 } else {
@@ -255,6 +255,7 @@ class ShopManager extends Service {
                     return true;
                 }
             }
+
             return false;
         });
 

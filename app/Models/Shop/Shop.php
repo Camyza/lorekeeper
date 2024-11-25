@@ -174,6 +174,8 @@ class Shop extends Model {
 
     /**
      * Gets the shop's stock costs.
+     *
+     * @param mixed $id
      */
     public function displayStockCosts($id) {
         return $this->stock()->where('id', $id)->first()->displayCosts();

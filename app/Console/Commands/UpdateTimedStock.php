@@ -8,7 +8,6 @@ use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class UpdateTimedStock extends Command {
-
     /**
      * The name and signature of the console command.
      *

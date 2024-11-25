@@ -2,7 +2,6 @@
 
 namespace App\Models\Shop;
 
-use App\Models\Currency\Currency;
 use App\Models\Item\Item;
 use App\Models\Model;
 use Carbon\Carbon;
@@ -26,21 +25,21 @@ class ShopStock extends Model {
     protected $table = 'shop_stock';
 
     /**
-     * Validation rules for creation.
-     *
-     * @var array
-     */
-    public static $createRules = [
-        'purchase_limit_timeframe' => 'in:lifetime,yearly,monthly,weekly,daily',
-    ];
-
-    /**
      * The attributes that should be cast to native types.
      *
      * @var array
      */
     protected $casts = [
         'data' => 'array',
+    ];
+
+    /**
+     * Validation rules for creation.
+     *
+     * @var array
+     */
+    public static $createRules = [
+        'purchase_limit_timeframe' => 'in:lifetime,yearly,monthly,weekly,daily',
     ];
 
     /**********************************************************************************************
@@ -175,6 +174,8 @@ class ShopStock extends Model {
 
     /**
      * Returns if a group can use coupons.
+     *
+     * @param mixed $group
      */
     public function canGroupUseCoupons($group) {
         return in_array($group, $this->data['can_group_use_coupon'] ?? []);

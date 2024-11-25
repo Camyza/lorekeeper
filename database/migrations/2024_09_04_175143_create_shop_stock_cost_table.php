@@ -4,13 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-return new class extends Migration
-{
+return new class extends Migration {
     /**
      * Run the migrations.
      */
-    public function up(): void
-    {
+    public function up(): void {
         Schema::create('shop_stock_costs', function (Blueprint $table) {
             $table->integer('shop_stock_id')->unsigned();
             $table->string('cost_type');
@@ -27,7 +25,7 @@ return new class extends Migration
                 'shop_stock_id' => $stock->id,
                 'cost_type'     => 'Currency',
                 'cost_id'       => $stock->currency_id,
-                'quantity' => $stock->cost,
+                'quantity'      => $stock->cost,
             ]);
         }
 
@@ -42,8 +40,7 @@ return new class extends Migration
     /**
      * Reverse the migrations.
      */
-    public function down(): void
-    {
+    public function down(): void {
         Schema::table('shop_stock', function (Blueprint $table) {
             $table->integer('currency_id')->unsigned();
             $table->integer('cost');
