@@ -26,6 +26,15 @@ class ShopLog extends Model {
     protected $table = 'shop_log';
 
     /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'cost' => 'array',
+    ];
+
+    /**
      * Whether the model contains timestamps to be saved and updated.
      *
      * @var string
@@ -41,15 +50,6 @@ class ShopLog extends Model {
         'stock_id' => 'required',
         'shop_id'  => 'required',
         'bank'     => 'required|in:user,character',
-    ];
-
-    /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'cost' => 'array',
     ];
 
     /**********************************************************************************************
@@ -108,6 +108,7 @@ class ShopLog extends Model {
      */
     public function getItemDataAttribute() {
         $cost = mergeAssetsArrays(parseAssetData($this->cost['user']), parseAssetData($this->cost['character']));
+
         return 'Purchased from '.$this->shop->name.' by '.
             ($this->character_id ? $this->character->slug.' (owned by '.$this->user->name.')' : $this->user->displayName).' using '.
             (createRewardsString($cost, true, true) == 'Nothing. :(' ? 'Free' : createRewardsString($cost, true, true));

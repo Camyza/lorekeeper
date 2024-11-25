@@ -275,10 +275,12 @@ function parseAssetData($array) {
 
 /**
  * Returns if two asset arrays are identical.
- * 
+ *
  * @param array $first
  * @param array $second
- * 
+ * @param mixed $isCharacter
+ * @param mixed $absQuantities
+ *
  * @return bool
  */
 function compareAssetArrays($first, $second, $isCharacter = false, $absQuantities = false) {
@@ -334,8 +336,9 @@ function fillUserAssets($assets, $sender, $recipient, $logType, $data) {
             foreach ($contents as $asset) {
                 if (!$service->creditItem($sender, $recipient, $logType, $data, $asset['asset'], $asset['quantity'])) {
                     foreach ($service->errors()->getMessages()['error'] as $error) {
-                        \Log::error($error);
+                        Log::error($error);
                     }
+
                     return false;
                 }
             }
@@ -432,6 +435,8 @@ function fillCharacterAssets($assets, $sender, $recipient, $logType, $data, $sub
  * Creates a rewards string from an asset array.
  *
  * @param array $array
+ * @param mixed $useDisplayName
+ * @param mixed $absQuantities
  *
  * @return string
  */
