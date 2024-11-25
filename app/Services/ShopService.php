@@ -325,6 +325,7 @@ class ShopService extends Service {
             $data['parsed_description'] = parse($data['description']);
         }
         $data['is_active'] = isset($data['is_active']);
+        $data['is_hidden'] = isset($data['is_hidden']);
         $data['is_staff'] = isset($data['is_staff']);
         $data['use_coupons'] = isset($data['use_coupons']);
         $data['allowed_coupons'] ??= null;
