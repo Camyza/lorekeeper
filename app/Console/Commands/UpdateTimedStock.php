@@ -35,48 +35,39 @@ class UpdateTimedStock extends Command {
      * @return int
      */
     public function handle() {
-        $hidestock = ShopStock::where('is_timed_stock', 1)->where('is_visible', 1)
-            ->where(function ($query) {
-                $query->whereNull('start_at')->orWhere('start_at', '>=', Carbon::now());
-            })->where(function ($query) {
-                $query->whereNull('end_at')->orWhere('end_at', '<=', Carbon::now());
-            })->get();
-        $showstock = ShopStock::where('is_timed_stock', 1)->where('is_visible', 0)
-            ->where(function ($query) {
-                $query->whereNull('start_at')->orWhere('start_at', '<', Carbon::now());
-            })->where(function ($query) {
-                $query->whereNull('end_at')->orWhere('end_at', '>', Carbon::now());
-            })->get();
-        //set stock that should be active to active
+        $hidestock = ShopStock::where('is_timed_stock', 1)->where('is_visible', 1)->get()->filter(function ($stock) {
+            return !$stock->isActive;
+        });
+        $showstock = ShopStock::where('is_timed_stock', 1)->where('is_visible', 0)->get()->filter(function ($stock) {
+            return $stock->isActive;
+        });
+
+        // set stock that should be active to active
         foreach ($showstock as $showstock) {
             $showstock->is_visible = 1;
             $showstock->save();
         }
-        //hide stock that should be hidden now
+        // hide stock that should be hidden now
         foreach ($hidestock as $hidestock) {
             $hidestock->is_visible = 0;
             $hidestock->save();
         }
 
-        //also activate or deactivate the shops
-        $hideshop = Shop::where('is_timed_shop', 1)->where('is_active', 1)
-            ->where(function ($query) {
-                $query->whereNull('start_at')->orWhere('start_at', '>=', Carbon::now());
-            })->where(function ($query) {
-                $query->whereNull('end_at')->orWhere('end_at', '<=', Carbon::now());
-            })->get();
-        $showshop = Shop::where('is_timed_shop', 1)->where('is_active', 0)
-            ->where(function ($query) {
-                $query->whereNull('start_at')->orWhere('start_at', '<', Carbon::now());
-            })->where(function ($query) {
-                $query->whereNull('end_at')->orWhere('end_at', '>', Carbon::now());
-            })->get();
-        //set shop that should be active to active
+        // also activate or deactivate the shops
+        $hideshop = Shop::where('is_timed_shop', 1)->where('is_active', 1)->get()->filter(function ($shop) {
+            return !$shop->isActive;
+        });
+        $showshop = Shop::where('is_timed_shop', 1)->where('is_active', 0)->get()->filter(function ($shop) {
+            return $shop->isActive;
+        });
+
+
+        // set shop that should be active to active
         foreach ($showshop as $showshop) {
             $showshop->is_active = 1;
             $showshop->save();
         }
-        //hide shop that should be hidden now
+        // hide shop that should be hidden now
         foreach ($hideshop as $hideshop) {
             $hideshop->is_active = 0;
             $hideshop->save();

@@ -125,6 +125,38 @@ class ShopService extends Service {
                 throw new \Exception('You must select an item.');
             }
 
+            $is_random = false;
+            $is_category = false;
+            $categoryId = null;
+            // if the id is not numeric, it's a random item
+            if (!is_numeric($data['item_id'])) {
+                $is_random = true;
+
+                $type = $data['stock_type'];
+                $model = getAssetModelString(strtolower($type));
+                if ($data['item_id'] != 'random') {
+                    // this means its a category, extract the id from the string
+                    $categoryId = explode('-', $data['item_id'])[0];
+                    $is_category = true;
+                }
+
+                // check if "visible" method exists, if it does only get visible items
+                // also check for "released" method, if it exists only get released items
+                if (method_exists($model, 'visible')) {
+                    $data['item_id'] = $categoryId ?
+                        $model::visible()->where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
+                        $model::visible()->inRandomOrder()->first()->id;
+                } elseif (method_exists($model, 'released')) {
+                    $data['item_id'] = $categoryId ? 
+                        $model::released()->where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
+                        $model::released()->inRandomOrder()->first()->id;
+                } else {
+                    $data['item_id'] = $categoryId ?
+                        $model::where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
+                        $model::inRandomOrder()->first()->id;
+                }
+            }
+
             $stock = $shop->stock()->create([
                 'shop_id'                  => $shop->id,
                 'item_id'                  => $data['item_id'],
@@ -145,6 +177,13 @@ class ShopService extends Service {
                 'is_timed_stock'           => isset($data['is_timed_stock']),
                 'start_at'                 => $data['stock_start_at'],
                 'end_at'                   => $data['stock_end_at'],
+                'data'                     => [
+                    'is_random'    => $is_random,
+                    'is_category'  => $is_category,
+                    'category_id'  => $categoryId,
+                    'stock_days'   => $data['stock_days'] ?? null,
+                    'stock_months' => $data['stock_months'] ?? null,
+                ],
             ]);
 
             if (isset($data['cost_type']) && isset($data['cost_quantity'])) {
@@ -186,6 +225,38 @@ class ShopService extends Service {
                 throw new \Exception('You must select an item.');
             }
 
+            $is_random = false;
+            $is_category = false;
+            $categoryId = null;
+            // if the id is not numeric, it's a random item
+            if (!is_numeric($data['item_id'])) {
+                $is_random = true;
+
+                $type = $data['stock_type'];
+                $model = getAssetModelString(strtolower($type));
+                if ($data['item_id'] != 'random') {
+                    // this means its a category, extract the id from the string
+                    $categoryId = explode('-', $data['item_id'])[0];
+                    $is_category = true;
+                }
+
+                // check if "visible" method exists, if it does only get visible items
+                // also check for "released" method, if it exists only get released items
+                if (method_exists($model, 'visible')) {
+                    $data['item_id'] = $categoryId ?
+                        $model::visible()->where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
+                        $model::visible()->inRandomOrder()->first()->id;
+                } elseif (method_exists($model, 'released')) {
+                    $data['item_id'] = $categoryId ? 
+                        $model::released()->where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
+                        $model::released()->inRandomOrder()->first()->id;
+                } else {
+                    $data['item_id'] = $categoryId ?
+                        $model::where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
+                        $model::inRandomOrder()->first()->id;
+                }
+            }
+
             $stock->update([
                 'shop_id'                  => $stock->shop->id,
                 'item_id'                  => $data['item_id'],
@@ -223,6 +294,11 @@ class ShopService extends Service {
 
             // add coupon usage based on groups
             $stockData = [
+                'is_random'            => $is_random,
+                'is_category'          => $is_category,
+                'category_id'          => $categoryId,
+                'stock_days'           => $data['stock_days'] ?? null,
+                'stock_months'         => $data['stock_months'] ?? null,
                 'can_group_use_coupon' => [],
             ];
             if (isset($data['can_group_use_coupon'])) {
@@ -329,6 +405,11 @@ class ShopService extends Service {
         $data['is_staff'] = isset($data['is_staff']);
         $data['use_coupons'] = isset($data['use_coupons']);
         $data['allowed_coupons'] ??= null;
+        $data['data'] = [
+            'shop_days'   => $data['shop_days'] ?? null,
+            'shop_months' => $data['shop_months'] ?? null,
+        ];
+        unset($data['shop_days'], $data['shop_months']);
 
         if (isset($data['remove_image'])) {
             if ($shop && $shop->has_image && $data['remove_image']) {

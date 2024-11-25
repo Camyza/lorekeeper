@@ -9,7 +9,9 @@
     <p>
         Random stock will select a random item from the list below on creation / edit.
         <br/>
-        On restock, if the item is random, it will select a new random item.
+        <b>If a restock period is set and the stock is set to "random", it will select a new random stock of the chosen type.</b>
+        <br />
+        <b>If a category exists for the chosen stock type, it can be used as a random filter.</b>
     </p>
     <div class="row">
         <div class="col-md-6 form-group">
@@ -100,6 +102,21 @@
 
     <hr />
 
+    <div class="row mb-3">
+        <div class="col-md-6">
+            {!! Form::label('purchase_limit', 'User Purchase Limit') !!} {!! add_help('This is the maximum amount of this item a user can purchase from this shop. Set to 0 to allow infinite purchases.') !!}
+            {!! Form::number('purchase_limit', $stock ? $stock->purchase_limit : 0, ['class' => 'form-control stock-field', 'data-name' => 'purchase_limit']) !!}
+        </div>
+        <div class="col-md-6">
+            {!! Form::label('purchase_limit_timeframe', 'Purchase Limit Timeout') !!} {!! add_help('This is the timeframe that the purchase limit will apply to. I.E. yearly will only look at purchases made after the beginning of the current year. Weekly starts on Sunday. Rollover will happen on UTC time.') !!}
+            {!! Form::select('purchase_limit_timeframe', ['lifetime' => 'Lifetime', 'yearly' => 'Yearly', 'monthly' => 'Monthly', 'weekly' => 'Weekly', 'daily' => 'Daily'], $stock ? $stock->purchase_limit_timeframe : 0, [
+                'class' => 'form-control stock-field',
+                'data-name' => 'purchase_limit_timeframe',
+                'placeholder' => 'Select Timeframe',
+            ]) !!}
+        </div>
+    </div>
+
     <div class="row no-gutters">
         <div class="col-md-6 form-group">
             {!! Form::checkbox('use_user_bank', 1, $stock->use_user_bank ?? 1, ['class' => 'form-check-input stock-toggle stock-field', 'data-toggle' => 'checkbox', 'data-name' => 'use_user_bank']) !!}
@@ -148,34 +165,39 @@
             </div>
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-md-6">
-            {!! Form::label('purchase_limit', 'User Purchase Limit') !!} {!! add_help('This is the maximum amount of this item a user can purchase from this shop. Set to 0 to allow infinite purchases.') !!}
-            {!! Form::number('purchase_limit', $stock ? $stock->purchase_limit : 0, ['class' => 'form-control stock-field', 'data-name' => 'purchase_limit']) !!}
-        </div>
-        <div class="col-md-6">
-            {!! Form::label('purchase_limit_timeframe', 'Purchase Limit Timeout') !!} {!! add_help('This is the timeframe that the purchase limit will apply to. I.E. yearly will only look at purchases made after the beginning of the current year. Weekly starts on Sunday. Rollover will happen on UTC time.') !!}
-            {!! Form::select('purchase_limit_timeframe', ['lifetime' => 'Lifetime', 'yearly' => 'Yearly', 'monthly' => 'Monthly', 'weekly' => 'Weekly', 'daily' => 'Daily'], $stock ? $stock->purchase_limit_timeframe : 0, [
-                'class' => 'form-control stock-field',
-                'data-name' => 'purchase_limit_timeframe',
-                'placeholder' => 'Select Timeframe',
-            ]) !!}
-        </div>
-    </div>
 
     <div class="form-group">
         {!! Form::checkbox('is_timed_stock', 1, $stock->is_timed_stock ?? 0, ['class' => 'form-check-input stock-timed stock-toggle stock-field', 'data-toggle' => 'checkbox', 'id' => 'is_timed_stock']) !!}
         {!! Form::label('is_timed_stock', 'Set Timed Stock', ['class' => 'form-check-label ml-3']) !!} {!! add_help('Sets the stock as timed between the chosen dates.') !!}
     </div>
-    <div class="stock-timed-quantity {{ $stock->is_timed_stock ? '' : 'hide' }}">
-        <div class="row">
-            <div class="col-md-6 form-group">
-                {!! Form::label('stock_start_at', 'Start Time') !!} {!! add_help('Stock will cycle in at this date.') !!}
-                {!! Form::text('stock_start_at', $stock->start_at, ['class' => 'form-control datepicker']) !!}
+    <div class="card stock-timed-quantity {{ $stock->is_timed_stock ? '' : 'hide' }}">
+        <div class="card-body">
+            <h3>Stock Time Period</h3>
+            <p>Both of the below options can work together. If both are set, the stock will only be available during the specific time period, and on the specific days of the week and months.</p>
+
+            <h5>Specific Time Period</h5>
+            <p>The time period below is between the specific dates and times, rather than an agnostic period like "every November".</p>
+            <div class="row">
+                <div class="col-md-6 form-group">
+                    {!! Form::label('stock_start_at', 'Start Time') !!} {!! add_help('Stock will cycle in at this date.') !!}
+                    {!! Form::text('stock_start_at', $stock->start_at, ['class' => 'form-control datepicker']) !!}
+                </div>
+                <div class="col-md-6 form-group">
+                    {!! Form::label('stock_end_at', 'End Time') !!} {!! add_help('Stock will cycle out at this date.') !!}
+                    {!! Form::text('stock_end_at', $stock->end_at, ['class' => 'form-control datepicker']) !!}
+                </div>
             </div>
-            <div class="col-md-6 form-group">
-                {!! Form::label('stock_end_at', 'End Time') !!} {!! add_help('Stock will cycle out at this date.') !!}
-                {!! Form::text('stock_end_at', $stock->end_at, ['class' => 'form-control datepicker']) !!}
+
+            <h5>Repeating Time Period</h5>
+            <p>Select the months and days of the week that the stock will be available.</p>
+            <p><b>If months are set alongside days, the stock will only be available on those days in those months.</b></p>
+            <div class="form-group">
+                {!! Form::label('stock_days', 'Days of the Week') !!}
+                {!! Form::select('stock_days[]', ['Monday' => 'Monday', 'Tuesday' => 'Tuesday', 'Wednesday' => 'Wednesday', 'Thursday' => 'Thursday', 'Friday' => 'Friday', 'Saturday' => 'Saturday', 'Sunday' => 'Sunday'], $stock->days ?? null, ['class' => 'form-control selectize', 'multiple' => 'multiple']) !!}
+            </div>
+            <div class="form-group">
+                {!! Form::label('stock_months', 'Months of the Year') !!}
+                {!! Form::select('stock_months[]', ['January' => 'January', 'February' => 'February', 'March' => 'March', 'April' => 'April', 'May' => 'May', 'June' => 'June', 'July' => 'July', 'August' => 'August', 'September' => 'September', 'October' => 'October', 'November' => 'November', 'December' => 'December'], $stock->months ?? null, ['class' => 'form-control selectize', 'multiple' => 'multiple']) !!}
             </div>
         </div>
     </div>
@@ -216,6 +238,8 @@
 </div>
 <script>
     $(document).ready(function() {
+        $('.selectize').selectize();
+
         // foreach .form-check-input
         $('.form-check-input').each(function() {
             $(this).attr('data-toggle', 'toggle').bootstrapToggle();

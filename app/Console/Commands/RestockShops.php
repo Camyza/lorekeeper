@@ -53,8 +53,25 @@ class RestockShops extends Command {
             }
 
             // if the stock is random, restock from the stock type
-            if ($stock->is_random) {
-                $model = getAssetModelString(strtolower($this->stock_type));
+            if ($stock->isRandom) {
+                $type = $stock->stock_type;
+                $model = getAssetModelString(strtolower($type));
+                if (method_exists($model, 'visible')) {
+                    $itemId = $stock->categoryId ?
+                        $model::visible()->where(strtolower($type).'_category_id', $stock->categoryId)->inRandomOrder()->first()->id :
+                        $model::visible()->inRandomOrder()->first()->id;
+                } elseif (method_exists($model, 'released')) {
+                    $itemId = $stock->categoryId ?
+                        $model::released()->where(strtolower($type).'_category_id', $stock->categoryId)->inRandomOrder()->first()->id :
+                        $model::released()->inRandomOrder()->first()->id;
+                } else {
+                    $itemId = $stock->categoryId ?
+                        $model::where(strtolower($type).'_category_id', $stock->categoryId)->inRandomOrder()->first()->id :
+                        $model::inRandomOrder()->first()->id;
+                }
+                
+                $stock->item_id = $itemId;
+                $stock->save();
             }
 
             $stock->quantity = $stock->range ? mt_rand(1, $stock->restock_quantity) : $stock->restock_quantity;

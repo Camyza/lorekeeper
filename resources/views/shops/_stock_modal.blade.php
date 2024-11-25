@@ -37,7 +37,7 @@
         <div class="alert alert-info text-center">
             This item is available for a limited time!
             <br />
-            <i class="fas fa-clock"></i> {!! $stock->start_at ? pretty_date($stock->start_at) : 'Now' !!} - {!! $stock->end_at ? pretty_date($stock->end_at) : 'Always' !!}
+            <i class="fas fa-clock"></i> <small>{!! $stock->displayTime() !!}</small>
         </div>
     @endif
 

@@ -14,7 +14,7 @@ class Shop extends Model {
      */
     protected $fillable = [
         'name', 'sort', 'has_image', 'description', 'parsed_description', 'is_active', 'is_staff', 'use_coupons', 'is_fto', 'allowed_coupons', 'is_timed_shop', 'start_at', 'end_at',
-        'is_hidden',
+        'is_hidden', 'data',
     ];
 
     /**
@@ -44,6 +44,17 @@ class Shop extends Model {
         'name'        => 'required|between:3,100',
         'description' => 'nullable',
         'image'       => 'mimes:png',
+    ];
+
+        /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'data'     => 'array',
+        'end_at'   => 'datetime',
+        'start_at' => 'datetime',
     ];
 
     /**********************************************************************************************
@@ -99,7 +110,7 @@ class Shop extends Model {
      * @return string
      */
     public function getDisplayNameAttribute() {
-        return '<a href="'.$this->url.'" class="display-shop">'.$this->name.'</a>';
+        return '<a href="'.$this->url.'" class="display-shop">'.(!$this->isActive ? '<i class="fas fa-eye-slash"></i> ' : '').$this->name.'</a>';
     }
 
     /**
@@ -167,6 +178,44 @@ class Shop extends Model {
      */
     public function getAdminPowerAttribute() {
         return 'edit_data';
+    }
+
+    /**
+     * Returns the days the shop is available, if set
+     */
+    public function getDaysAttribute() {
+        return $this->data['shop_days'] ?? null;
+    }
+
+    /**
+     * Returns the months the shop is available, if set
+     */
+    public function getMonthsAttribute() {
+        return $this->data['shop_months'] ?? null;
+    }
+
+    /**
+     * Returns if this shop should be active or not.
+     * We dont account for is_visible here, as this is used for checking both visible and invisible shop.
+     */
+    public function getIsActiveAttribute() {
+        if ($this->start_at && $this->start_at > Carbon::now()) {
+            return false;
+        }
+
+        if ($this->end_at && $this->end_at < Carbon::now()) {
+            return false;
+        }
+
+        if ($this->days && !in_array(Carbon::now()->format('l'), $this->days)) {
+            return false;
+        }
+
+        if ($this->months && !in_array(Carbon::now()->format('F'), $this->months)) {
+            return false;
+        }
+
+        return true;
     }
 
     /**********************************************************************************************
