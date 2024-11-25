@@ -142,11 +142,11 @@ class ShopController extends Controller {
         if (class_exists($categoryClass)) {
             // map the categories to be name-id
             $categories = $categoryClass::orderBy('name')->get()->mapWithKeys(function ($category) {
-                return [$category->id . '-category' => $category->name];
+                return [$category->id.'-category' => $category->name];
             });
             $items = [
-                $type            => $model::orderBy('name')->pluck('name', 'id')->toArray() + ['random' => 'Random ' . $type],
-                $type.'Category' => $categories->toArray()
+                $type            => $model::orderBy('name')->pluck('name', 'id')->toArray() + ['random' => 'Random '.$type],
+                $type.'Category' => $categories->toArray(),
             ];
         } else {
             $items = $model::orderBy('name')->pluck('name', 'id')->toArray();
@@ -175,11 +175,11 @@ class ShopController extends Controller {
         if (class_exists($categoryClass)) {
             // map the categories to be name-id
             $categories = $categoryClass::orderBy('name')->get()->mapWithKeys(function ($category) {
-                return [$category->id . '-category' => $category->name];
+                return [$category->id.'-category' => $category->name];
             });
             $items = [
-                $type            => $model::orderBy('name')->pluck('name', 'id')->toArray() + ['random' => 'Random ' . $type],
-                $type.'Category' => $categories->toArray()
+                $type            => $model::orderBy('name')->pluck('name', 'id')->toArray() + ['random' => 'Random '.$type],
+                $type.'Category' => $categories->toArray(),
             ];
         } else {
             $items = $model::orderBy('name')->pluck('name', 'id')->toArray();

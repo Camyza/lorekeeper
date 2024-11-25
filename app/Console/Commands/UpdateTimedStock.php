@@ -4,7 +4,6 @@ namespace App\Console\Commands;
 
 use App\Models\Shop\Shop;
 use App\Models\Shop\ShopStock;
-use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class UpdateTimedStock extends Command {
@@ -60,7 +59,6 @@ class UpdateTimedStock extends Command {
         $showshop = Shop::where('is_timed_shop', 1)->where('is_active', 0)->get()->filter(function ($shop) {
             return $shop->isActive;
         });
-
 
         // set shop that should be active to active
         foreach ($showshop as $showshop) {

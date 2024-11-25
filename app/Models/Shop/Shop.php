@@ -25,6 +25,17 @@ class Shop extends Model {
     protected $table = 'shops';
 
     /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'data'     => 'array',
+        'end_at'   => 'datetime',
+        'start_at' => 'datetime',
+    ];
+
+    /**
      * Validation rules for creation.
      *
      * @var array
@@ -44,17 +55,6 @@ class Shop extends Model {
         'name'        => 'required|between:3,100',
         'description' => 'nullable',
         'image'       => 'mimes:png',
-    ];
-
-        /**
-     * The attributes that should be cast to native types.
-     *
-     * @var array
-     */
-    protected $casts = [
-        'data'     => 'array',
-        'end_at'   => 'datetime',
-        'start_at' => 'datetime',
     ];
 
     /**********************************************************************************************
@@ -81,20 +81,20 @@ class Shop extends Model {
             return $this->belongsToMany(Item::class, 'shop_stock')->where('stock_type', 'Item')->withPivot('item_id', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'purchase_limit', 'id', 'is_timed_stock')
                 ->wherePivot('is_visible', 1)->where(function ($query) {
                     $query->whereNull('shop_stock.start_at')
-                          ->orWhere('shop_stock.start_at', '<', Carbon::now());
+                        ->orWhere('shop_stock.start_at', '<', Carbon::now());
                 })->where(function ($query) {
                     $query->whereNull('shop_stock.end_at')
-                          ->orWhere('shop_stock.end_at', '>', Carbon::now());
-                });                
+                        ->orWhere('shop_stock.end_at', '>', Carbon::now());
+                });
         }
 
         return $this->belongsToMany($model, 'shop_stock', 'shop_id', 'item_id')->where('stock_type', $type)->withPivot('item_id', 'use_user_bank', 'use_character_bank', 'is_limited_stock', 'quantity', 'purchase_limit', 'id', 'is_timed_stock')
             ->wherePivot('is_visible', 1)->where(function ($query) {
                 $query->whereNull('shop_stock.start_at')
-                      ->orWhere('shop_stock.start_at', '<', Carbon::now());
+                    ->orWhere('shop_stock.start_at', '<', Carbon::now());
             })->where(function ($query) {
                 $query->whereNull('shop_stock.end_at')
-                      ->orWhere('shop_stock.end_at', '>', Carbon::now());
+                    ->orWhere('shop_stock.end_at', '>', Carbon::now());
             });
     }
 
@@ -181,14 +181,14 @@ class Shop extends Model {
     }
 
     /**
-     * Returns the days the shop is available, if set
+     * Returns the days the shop is available, if set.
      */
     public function getDaysAttribute() {
         return $this->data['shop_days'] ?? null;
     }
 
     /**
-     * Returns the months the shop is available, if set
+     * Returns the months the shop is available, if set.
      */
     public function getMonthsAttribute() {
         return $this->data['shop_months'] ?? null;

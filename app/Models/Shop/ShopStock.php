@@ -130,6 +130,7 @@ class ShopStock extends Model {
      */
     public function getIsCategoryAttribute() {
         $model = getAssetModelString(strtolower($this->stock_type));
+
         return isset($this->data['is_category']) && $this->data['is_category'] && class_exists($model.'Category');
     }
 
@@ -141,14 +142,14 @@ class ShopStock extends Model {
     }
 
     /**
-     * Returns the days the stock is available, if set
+     * Returns the days the stock is available, if set.
      */
     public function getDaysAttribute() {
         return $this->data['stock_days'] ?? null;
     }
 
     /**
-     * Returns the months the stock is available, if set
+     * Returns the months the stock is available, if set.
      */
     public function getMonthsAttribute() {
         return $this->data['stock_months'] ?? null;
@@ -253,19 +254,19 @@ class ShopStock extends Model {
         $string = '<div>';
         // if start_at and end_at are set, we need to show that its avaialble only during that time and THEN only on the days and months
         if ($this->start_at && $this->end_at) {
-            $string .= pretty_date($this->start_at) . ' - ' . pretty_date($this->end_at);
-        } else if ($this->start_at) {
-            $string .= 'From ' . pretty_date($this->start_at);
-        } else if ($this->end_at) {
-            $string .= 'Until ' . pretty_date($this->end_at);
+            $string .= pretty_date($this->start_at).' - '.pretty_date($this->end_at);
+        } elseif ($this->start_at) {
+            $string .= 'From '.pretty_date($this->start_at);
+        } elseif ($this->end_at) {
+            $string .= 'Until '.pretty_date($this->end_at);
         }
 
         if ($days) {
-            $string .= '<br>Available on ' . implode(', ', $days);
+            $string .= '<br>Available on '.implode(', ', $days);
         }
 
         if ($months) {
-            $string .= '<br>During ' . implode(', ', $months);
+            $string .= '<br>During '.implode(', ', $months);
         }
 
         $string .= '</div>';

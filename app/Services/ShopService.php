@@ -147,7 +147,7 @@ class ShopService extends Service {
                         $model::visible()->where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
                         $model::visible()->inRandomOrder()->first()->id;
                 } elseif (method_exists($model, 'released')) {
-                    $data['item_id'] = $categoryId ? 
+                    $data['item_id'] = $categoryId ?
                         $model::released()->where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
                         $model::released()->inRandomOrder()->first()->id;
                 } else {
@@ -247,7 +247,7 @@ class ShopService extends Service {
                         $model::visible()->where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
                         $model::visible()->inRandomOrder()->first()->id;
                 } elseif (method_exists($model, 'released')) {
-                    $data['item_id'] = $categoryId ? 
+                    $data['item_id'] = $categoryId ?
                         $model::released()->where(strtolower($type).'_category_id', $categoryId)->inRandomOrder()->first()->id :
                         $model::released()->inRandomOrder()->first()->id;
                 } else {

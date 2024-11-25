@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Carbon\Carbon;
 use App\Models\Shop\ShopStock;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 
 class RestockShops extends Command {
@@ -43,7 +43,7 @@ class RestockShops extends Command {
                 if ($day != 1) {
                     continue;
                 }
-            } else if ($stock->restock_interval == 3) {
+            } elseif ($stock->restock_interval == 3) {
                 // check if it's start of month
                 $now = Carbon::now();
                 $day = $now->day;
@@ -69,7 +69,7 @@ class RestockShops extends Command {
                         $model::where(strtolower($type).'_category_id', $stock->categoryId)->inRandomOrder()->first()->id :
                         $model::inRandomOrder()->first()->id;
                 }
-                
+
                 $stock->item_id = $itemId;
                 $stock->save();
             }
