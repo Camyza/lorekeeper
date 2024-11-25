@@ -43,14 +43,19 @@
             @foreach ($stock->costs ?? [] as $cost)
                 <div class="row mb-3">
                     <div class="col-3">
-                        {!! Form::select('cost_type[]', [
-                            'Currency' => 'Currency'
-                        ], $cost->cost_type ?? null, ['class' => 'form-control cost-type', 'placeholder' => 'Select Cost Type']) !!}
+                        {!! Form::select(
+                            'cost_type[]',
+                            [
+                                'Currency' => 'Currency',
+                            ],
+                            $cost->cost_type ?? null,
+                            ['class' => 'form-control cost-type', 'placeholder' => 'Select Cost Type'],
+                        ) !!}
                     </div>
                     <div class="col-4 costObjects">
                         @include('admin.shops._stock_cost', [
                             'cost' => $cost,
-                            'costItems' => $cost->items
+                            'costItems' => $cost->items,
                         ])
                     </div>
                     <div class="col-2">
@@ -77,8 +82,8 @@
         @if ($stock->id)
             @foreach ($stock->groups ?? [] as $group)
                 <div class="form-group">
-                    {!! Form::checkbox('can_group_use_coupon['.$group.']', 1, $stock->canGroupUseCoupons($group), ['class' => 'form-check-input stock-field', 'data-toggle' => 'checkbox']) !!}
-                    {!! Form::label('can_group_use_coupon['.$group.']', 'Allow group #' . $group . ' to use coupons', ['class' => 'form-check-label ml-3']) !!}
+                    {!! Form::checkbox('can_group_use_coupon[' . $group . ']', 1, $stock->canGroupUseCoupons($group), ['class' => 'form-check-input stock-field', 'data-toggle' => 'checkbox']) !!}
+                    {!! Form::label('can_group_use_coupon[' . $group . ']', 'Allow group #' . $group . ' to use coupons', ['class' => 'form-check-label ml-3']) !!}
                 </div>
             @endforeach
         @else
@@ -178,9 +183,14 @@
     <div class="form-group hide original cost-row">
         <div class="row">
             <div class="col-3">
-                {!! Form::select('cost_type[]', [
-                    'Currency' => 'Currency'
-                ], null, ['class' => 'form-control cost-type', 'placeholder' => 'Select Cost Type']) !!}
+                {!! Form::select(
+                    'cost_type[]',
+                    [
+                        'Currency' => 'Currency',
+                    ],
+                    null,
+                    ['class' => 'form-control cost-type', 'placeholder' => 'Select Cost Type'],
+                ) !!}
             </div>
             <div class="col-4 costObjects">
                 Select Cost Type
