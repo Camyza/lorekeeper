@@ -129,9 +129,6 @@ class ShopStock extends Model {
             case 'monthly':
                 $date = Carbon::now()->startOfMonth()->timestamp;
                 break;
-            case 'biweekly':
-                $date = Carbon::now()->startOfWeek()->subWeek()->timestamp;
-                break;
             case 'weekly':
                 $date = strtotime('last sunday');
                 break;
