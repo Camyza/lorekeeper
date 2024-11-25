@@ -43,14 +43,23 @@
         {!! Form::textarea('description', $shop->description, ['class' => 'form-control wysiwyg']) !!}
     </div>
 
-    <div class="form-group">
-        {!! Form::checkbox('is_active', 1, $shop->id ? $shop->is_active : 1, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
-        {!! Form::label('is_active', 'Set Active', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If turned off, the shop will not be visible to regular users.') !!}
-    </div>
-
-    <div class="form-group">
-        {!! Form::checkbox('is_staff', 1, $shop->id ? $shop->is_staff : 0, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
-        {!! Form::label('is_staff', 'For Staff?', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If turned on, the shop will not be visible to regular users, only staff.') !!}
+    <div class="row">
+        <div class="col-md form-group">
+            {!! Form::checkbox('is_active', 1, $shop->id ? $shop->is_active : 1, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
+            {!! Form::label('is_active', 'Set Active', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If turned off, the shop will not be visible to regular users.') !!}
+        </div>
+        <div class="col-md form-group">
+            {!! Form::checkbox('is_hidden', 0, $shop->id ? $shop->is_hidden : 1, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
+            {!! Form::label('is_hidden', 'Set Hidden', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If turned off, the shop will not be visible on the shop index, but still accessible.') !!}
+        </div>
+        <div class="col-md form-group">
+            {!! Form::checkbox('is_staff', 1, $shop->id ? $shop->is_staff : 0, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
+            {!! Form::label('is_staff', 'For Staff?', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If turned on, the shop will not be visible to regular users, only staff.') !!}
+        </div>
+        <div class="col-md form-group">
+            {!! Form::checkbox('is_fto', 1, $shop->id ? $shop->is_fto : 0, ['class' => 'form-check-label', 'data-toggle' => 'toggle']) !!}
+            {!! Form::label('is_fto', 'FTO Only?', ['class' => 'form-check-label ml-3']) !!} {!! add_help('Only users who are currently FTO and staff can enter.') !!}
+        </div>    
     </div>
 
     <div class="form-group">
@@ -61,12 +70,6 @@
         {!! Form::label('allowed_coupons', 'Allowed Coupon(s)', ['class' => 'form-check-label']) !!}
         <p>Leave blank to allow ALL coupons.</p>
         {!! Form::select('allowed_coupons[]', $coupons, json_decode($shop->allowed_coupons, 1), ['multiple', 'class' => 'form-check-label', 'placeholder' => 'Select Coupons', 'id' => 'allowed_coupons']) !!}
-
-    </div>
-
-    <div class="form-group">
-        {!! Form::checkbox('is_fto', 1, $shop->id ? $shop->is_fto : 0, ['class' => 'form-check-label', 'data-toggle' => 'toggle']) !!}
-        {!! Form::label('is_fto', 'FTO Only?', ['class' => 'form-check-label ml-3']) !!} {!! add_help('Only users who are currently FTO and staff can enter.') !!}
     </div>
 
     <div class="form-group">
