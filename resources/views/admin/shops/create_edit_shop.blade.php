@@ -99,11 +99,32 @@
             <p><b>If months are set alongside days, the shop will only be available on those days in those months.</b></p>
             <div class="form-group">
                 {!! Form::label('shop_days', 'Days of the Week') !!}
-                {!! Form::select('shop_days[]', ['Monday' => 'Monday', 'Tuesday' => 'Tuesday', 'Wednesday' => 'Wednesday', 'Thursday' => 'Thursday', 'Friday' => 'Friday', 'Saturday' => 'Saturday', 'Sunday' => 'Sunday'], $shop->days ?? null, ['class' => 'form-control selectize', 'multiple' => 'multiple']) !!}
+                {!! Form::select('shop_days[]', ['Monday' => 'Monday', 'Tuesday' => 'Tuesday', 'Wednesday' => 'Wednesday', 'Thursday' => 'Thursday', 'Friday' => 'Friday', 'Saturday' => 'Saturday', 'Sunday' => 'Sunday'], $shop->days ?? null, [
+                    'class' => 'form-control selectize',
+                    'multiple' => 'multiple',
+                ]) !!}
             </div>
             <div class="form-group">
                 {!! Form::label('shop_months', 'Months of the Year') !!}
-                {!! Form::select('shop_months[]', ['January' => 'January', 'February' => 'February', 'March' => 'March', 'April' => 'April', 'May' => 'May', 'June' => 'June', 'July' => 'July', 'August' => 'August', 'September' => 'September', 'October' => 'October', 'November' => 'November', 'December' => 'December'], $shop->months ?? null, ['class' => 'form-control selectize', 'multiple' => 'multiple']) !!}
+                {!! Form::select(
+                    'shop_months[]',
+                    [
+                        'January' => 'January',
+                        'February' => 'February',
+                        'March' => 'March',
+                        'April' => 'April',
+                        'May' => 'May',
+                        'June' => 'June',
+                        'July' => 'July',
+                        'August' => 'August',
+                        'September' => 'September',
+                        'October' => 'October',
+                        'November' => 'November',
+                        'December' => 'December',
+                    ],
+                    $shop->months ?? null,
+                    ['class' => 'form-control selectize', 'multiple' => 'multiple'],
+                ) !!}
             </div>
         </div>
     </div>
@@ -159,7 +180,7 @@
                                         <div>Restock: {!! $stock->restock ? '<i class="fas fa-check text-success"></i>' : '<i class="fas fa-times text-danger"></i>' !!}</div>
                                     @endif
                                     @if ($stock->purchase_limit)
-                                        <div class="text-danger">Max {{ $stock->purchase_limit }} 
+                                        <div class="text-danger">Max {{ $stock->purchase_limit }}
                                             @if ($stock->purchase_limit_timeframe !== 'lifetime')
                                                 {{ $stock->purchase_limit_timeframe }}
                                             @endif per user

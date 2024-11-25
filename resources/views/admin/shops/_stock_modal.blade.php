@@ -8,7 +8,7 @@
     <h5>Stock</h5>
     <p>
         Random stock will select a random item from the list below on creation / edit.
-        <br/>
+        <br />
         <b>If a restock period is set and the stock is set to "random", it will select a new random stock of the chosen type.</b>
         <br />
         <b>If a category exists for the chosen stock type, it can be used as a random filter.</b>
@@ -193,11 +193,32 @@
             <p><b>If months are set alongside days, the stock will only be available on those days in those months.</b></p>
             <div class="form-group">
                 {!! Form::label('stock_days', 'Days of the Week') !!}
-                {!! Form::select('stock_days[]', ['Monday' => 'Monday', 'Tuesday' => 'Tuesday', 'Wednesday' => 'Wednesday', 'Thursday' => 'Thursday', 'Friday' => 'Friday', 'Saturday' => 'Saturday', 'Sunday' => 'Sunday'], $stock->days ?? null, ['class' => 'form-control selectize', 'multiple' => 'multiple']) !!}
+                {!! Form::select('stock_days[]', ['Monday' => 'Monday', 'Tuesday' => 'Tuesday', 'Wednesday' => 'Wednesday', 'Thursday' => 'Thursday', 'Friday' => 'Friday', 'Saturday' => 'Saturday', 'Sunday' => 'Sunday'], $stock->days ?? null, [
+                    'class' => 'form-control selectize',
+                    'multiple' => 'multiple',
+                ]) !!}
             </div>
             <div class="form-group">
                 {!! Form::label('stock_months', 'Months of the Year') !!}
-                {!! Form::select('stock_months[]', ['January' => 'January', 'February' => 'February', 'March' => 'March', 'April' => 'April', 'May' => 'May', 'June' => 'June', 'July' => 'July', 'August' => 'August', 'September' => 'September', 'October' => 'October', 'November' => 'November', 'December' => 'December'], $stock->months ?? null, ['class' => 'form-control selectize', 'multiple' => 'multiple']) !!}
+                {!! Form::select(
+                    'stock_months[]',
+                    [
+                        'January' => 'January',
+                        'February' => 'February',
+                        'March' => 'March',
+                        'April' => 'April',
+                        'May' => 'May',
+                        'June' => 'June',
+                        'July' => 'July',
+                        'August' => 'August',
+                        'September' => 'September',
+                        'October' => 'October',
+                        'November' => 'November',
+                        'December' => 'December',
+                    ],
+                    $stock->months ?? null,
+                    ['class' => 'form-control selectize', 'multiple' => 'multiple'],
+                ) !!}
             </div>
         </div>
     </div>

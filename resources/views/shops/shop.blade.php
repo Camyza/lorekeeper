@@ -73,7 +73,7 @@
                                             @endif
                                             @if ($item->pivot->purchase_limit)
                                                 <div class="text-danger">
-                                                    Max {{ $item->pivot->purchase_limit }} 
+                                                    Max {{ $item->pivot->purchase_limit }}
                                                     @if ($item->pivot->purchase_limit_timeframe !== 'lifetime')
                                                         {{ $item->pivot->purchase_limit_timeframe }}
                                                     @endif per user
