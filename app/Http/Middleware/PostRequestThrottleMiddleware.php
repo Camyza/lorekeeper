@@ -24,6 +24,7 @@ class PostRequestThrottleMiddleware {
         }
 
         $key = $request->user()?->id ?: $request->ip();
+        $key .= $request->fullUrl(); // add current url to key to prevent rate limiting on different pages
         $maxAttempts = 1;
         $decaySeconds = 10;
 

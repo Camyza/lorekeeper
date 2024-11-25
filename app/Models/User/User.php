@@ -37,7 +37,7 @@ class User extends Authenticatable implements MustVerifyEmail {
      */
     protected $fillable = [
         'name', 'alias', 'rank_id', 'email', 'email_verified_at', 'password', 'is_news_unread', 'is_banned', 'has_alias', 'avatar', 'is_sales_unread', 'birthday',
-        'is_deactivated', 'deactivater_id',
+        'is_deactivated', 'deactivater_id', 'content_warning_visibility',
     ];
 
     /**
@@ -171,8 +171,9 @@ class User extends Authenticatable implements MustVerifyEmail {
     public function gallerySubmissions() {
         return $this->hasMany(GallerySubmission::class)
             ->where('user_id', $this->id)
-            ->orWhereIn('id', GalleryCollaborator::where('user_id', $this->id)->where('type', 'Collab')->pluck('gallery_submission_id')->toArray())
-            ->visible($this)->accepted()->orderBy('created_at', 'DESC');
+            ->orWhereIn('id', GalleryCollaborator::where('user_id', $this->id)
+                ->where('type', 'Collab')->pluck('gallery_submission_id')->toArray())
+            ->orderBy('created_at', 'DESC');
     }
 
     /**
@@ -667,7 +668,7 @@ class User extends Authenticatable implements MustVerifyEmail {
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function getSubmissions($user = null) {
-        return Submission::with('user')->with('prompt')->viewable($user ? $user : null)->where('user_id', $this->id)->orderBy('id', 'DESC')->paginate(30);
+        return Submission::with('user')->with('prompt')->viewable($user ? $user : null)->where('user_id', $this->id)->orderBy('id', 'DESC');
     }
 
     /**

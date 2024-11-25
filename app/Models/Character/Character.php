@@ -78,8 +78,8 @@ class Character extends Model {
         'slug'                  => 'required|alpha_dash',
         'description'           => 'nullable',
         'sale_value'            => 'nullable',
-        'image'                 => 'required|mimes:jpeg,jpg,gif,png|max:20000',
-        'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:20000',
+        'image'                 => 'required|mimes:jpeg,jpg,gif,png|max:2048',
+        'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
         'owner_url'             => 'url|nullable',
     ];
 
@@ -94,6 +94,8 @@ class Character extends Model {
         'slug'                  => 'required',
         'description'           => 'nullable',
         'sale_value'            => 'nullable',
+        'image'                 => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
+        'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
     ];
 
     /**
@@ -109,8 +111,8 @@ class Character extends Model {
         'description' => 'nullable',
         'sale_value'  => 'nullable',
         'name'        => 'required',
-        'image'       => 'nullable|mimes:jpeg,gif,png|max:20000',
-        'thumbnail'   => 'nullable|mimes:jpeg,gif,png|max:20000',
+        'image'       => 'nullable|mimes:jpeg,gif,png|max:2048',
+        'thumbnail'   => 'nullable|mimes:jpeg,gif,png|max:2048',
     ];
 
     /**********************************************************************************************
@@ -325,6 +327,17 @@ class Character extends Model {
         } else {
             return $this->slug.($this->name ? ': '.$this->name : '');
         }
+    }
+
+    /**
+     * Gets the character's warnings, if they exist.
+     */
+    public function getWarningsAttribute() {
+        if (config('lorekeeper.settings.enable_character_content_warnings') && $this->image->content_warnings) {
+            return '<i class="fa fa-exclamation-triangle text-danger" data-toggle="tooltip" title="'.implode(', ', $this->image->content_warnings).'"></i> ';
+        }
+
+        return null;
     }
 
     /**

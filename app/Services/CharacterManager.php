@@ -977,6 +977,7 @@ class CharacterManager extends Service {
 
             $image->is_valid = isset($data['is_valid']);
             $image->is_visible = isset($data['is_visible']);
+            $image->content_warnings = isset($data['content_warnings']) ? explode(',', $data['content_warnings']) : null;
             $image->save();
 
             // Add a log for the character
@@ -1160,7 +1161,7 @@ class CharacterManager extends Service {
                     $old['number'] = $character->number;
                     $new['number'] = $characterData['number'];
                 }
-                if ($characterData['slug'] != $character->number) {
+                if ($characterData['slug'] != $character->slug) {
                     $result[] = 'character code';
                     $old['slug'] = $character->slug;
                     $new['slug'] = $characterData['slug'];
@@ -1933,7 +1934,6 @@ class CharacterManager extends Service {
         try {
             if ($isMyo) {
                 $data['species_id'] = isset($data['species_id']) && $data['species_id'] ? $data['species_id'] : null;
-                $data['subtype_ids'] = isset($data['subtype_ids']) && $data['subtype_ids'] ? $data['subtype_ids'] : null;
                 $data['rarity_id'] = isset($data['rarity_id']) && $data['rarity_id'] ? $data['rarity_id'] : null;
 
                 // Use default images for MYO slots without an image provided
@@ -1947,8 +1947,8 @@ class CharacterManager extends Service {
                 }
             }
             $imageData = Arr::only($data, [
-                'species_id', 'subtype_ids', 'rarity_id', 'use_cropper',
-                'x0', 'x1', 'y0', 'y1',
+                'species_id', 'rarity_id', 'use_cropper',
+                'x0', 'x1', 'y0', 'y1', 'content_warnings',
             ]);
             $imageData['use_cropper'] = isset($data['use_cropper']);
             $imageData['description'] = $data['image_description'] ?? null;
@@ -1961,6 +1961,7 @@ class CharacterManager extends Service {
             $imageData['extension'] = (config('lorekeeper.settings.masterlist_image_format') ?? ($data['extension'] ?? $data['image']->getClientOriginalExtension()));
             $imageData['fullsize_extension'] = (config('lorekeeper.settings.masterlist_fullsizes_format') ?? ($data['fullsize_extension'] ?? $data['image']->getClientOriginalExtension()));
             $imageData['character_id'] = $character->id;
+            $imageData['content_warnings'] = isset($data['content_warnings']) ? explode(',', $data['content_warnings']) : null;
 
             $image = CharacterImage::create($imageData);
 

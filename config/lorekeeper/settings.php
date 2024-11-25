@@ -372,6 +372,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Site FontAwesome Icon Version
+    |--------------------------------------------------------------------------
+    |
+    | What version of FontAwesome the site uses.
+    | 0: Version 5. (Default) 1: Version 6.
+    | 2: A mixed version where icons with v5 classes (i.e. fas) show
+    | the v5 icons and icons with v6 classes (i.e. fa-solid) show the v6 icons.
+    |
+    */
+    'fa_version'                                  => 0,
+
+    /*
+    |--------------------------------------------------------------------------
     | Site Logging Webhook
     |--------------------------------------------------------------------------
     |
@@ -383,4 +396,13 @@ return [
     */
     'site_logging_webhook'                              => env('SITE_LOGGING_WEBHOOK', null),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Enable Character Content Warnings
+    |--------------------------------------------------------------------------
+    |
+    | Allows characters to have content warnings.
+    |
+    */
+    'enable_character_content_warnings'                 => 1,
 ];
