@@ -66,7 +66,7 @@
                         ])
                     </div>
                     <div class="col-2">
-                        {!! Form::number('cost_quantity[]', $cost->cost_quantity ?? 1, ['class' => 'form-control', 'min' => 1]) !!}
+                        {!! Form::number('cost_quantity[]', $cost->quantity ?? 1, ['class' => 'form-control', 'min' => 1]) !!}
                     </div>
                     <div class="col-2">
                         {!! Form::number('group[]', $cost->group ?? 1, ['class' => 'form-control', 'min' => 1]) !!}
