@@ -35,7 +35,7 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
-        'name', 'alias', 'rank_id', 'email', 'password', 'is_news_unread', 'is_banned', 'has_alias', 'avatar', 'is_sales_unread', 'birthday'
+        'name', 'alias', 'rank_id', 'email', 'password', 'is_news_unread', 'is_banned', 'has_alias', 'avatar', 'profile_img', 'is_sales_unread', 'birthday'
     ];
 
     /**
@@ -331,6 +331,28 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getAvatar()
     {
         return ($this->avatar);
+    }
+
+    /**
+    * Gets the display URL for a user's profile image, or the default profile image if they don't have one.
+    *
+    * @return url
+    */
+    public function getProfileImgUrlAttribute() {
+        if ($this->profile_img == 'default.png') {
+            return url('images/profileimgs/default.png');
+        }
+
+        return url('images/profileimgs/' . $this->profile_img);
+    }
+
+    /**
+    * Displays the user's profile image.
+    *
+    * @return string
+    */
+    public function getProfileImg() {
+        return $this->profile_img;
     }
 
     /**

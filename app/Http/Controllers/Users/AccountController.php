@@ -84,6 +84,23 @@ class AccountController extends Controller
         }
         return redirect()->back();
     }
+
+    /**
+    * Edits the user's profile image.
+    *
+    * @return \Illuminate\Http\RedirectResponse
+    */
+    public function postProfileImg(Request $request, UserService $service) {
+        if ($service->updateProfileImg($request->file('profile_img'), Auth::user())) {
+            flash('Profile Image updated successfully.')->success();
+        } else {
+            foreach ($service->errors()->getMessages()['error'] as $error) {
+                flash($error)->error();
+            }
+        }
+
+        return redirect()->back();
+    }
     
     /**
      * Changes the user's password.

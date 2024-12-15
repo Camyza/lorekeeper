@@ -8,21 +8,40 @@
 <h1>Settings</h1>
 
 
-<div class="card p-3 mb-2">
-    <h3>Avatar</h3>
-    <div class="text-left"><div class="alert alert-warning">Please note a hard refresh may be required to see your updated avatar. Also please note that uploading a .gif will display a 500 error after; the upload should still work, however.</div></div>
-    @if(Auth::user()->isStaff)
-        <div class="alert alert-danger">For admins - note that .GIF avatars leave a tmp file in the directory (e.g php2471.tmp). There is an automatic schedule to delete these files.
+<div class="row">
+    <div class="col-6">
+        <div class="card p-3 mb-2">
+            <h3>Avatar</h3>
+            <div class="text-left"><div class="alert alert-warning">Please note a hard refresh may be required to see your updated avatar. Also please note that uploading a .gif will display a 500 error after; the upload should still work, however.</div></div>
+            @if(Auth::user()->isStaff)
+                <div class="alert alert-danger">For admins - note that .GIF avatars leave a tmp file in the directory (e.g php2471.tmp). There is an automatic schedule to delete these files.
+                </div>
+            @endif
+            <form enctype="multipart/form-data" action="avatar" method="POST">
+                <label>Update Profile Image</label><br>
+                <input type="file" name="avatar">
+                <input type="hidden" name="_token" value="{{ csrf_token() }}">
+                <input type="submit" class="pull-right btn btn-sm btn-primary">
+            </form>
         </div>
-    @endif
-    <form enctype="multipart/form-data" action="avatar" method="POST">
-        <label>Update Profile Image</label><br>
-        <input type="file" name="avatar">
-        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-        <input type="submit" class="pull-right btn btn-sm btn-primary">
-    </form>
+    </div>
+    <div class="col-6">
+        <div class="card p-3 mb-2">
+            <h3>Profile Header Image</h3>
+            {!! Form::open(['url' => 'account/profile_img', 'files' => true]) !!}
+            <div class="form-group row">
+                {!! Form::label('profile_img', 'Update', ['class' => 'col-md-2 col-form-label']) !!}
+                <div class="col-md-10">
+                    {!! Form::file('profile_img', ['class' => 'form-control']) !!}
+                </div>
+            </div>
+            <div class="text-right">
+                {!! Form::submit('Edit', ['class' => 'btn btn-primary']) !!}
+            </div>
+            {!! Form::close() !!}
+        </div>
+    </div>
 </div>
-
 
 <div class="card p-3 mb-2">
     <h3>Profile</h3>

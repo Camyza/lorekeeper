@@ -196,6 +196,70 @@ class UserService extends Service
     }
 
     /**
+    * Updates the user's profile image.
+    *
+    * @param \App\Models\User\User         $user
+    * @param mixed                         $profile_img
+    *
+    * @return bool
+    */
+    public function updateProfileImg($profile_img, $user) {
+        DB::beginTransaction();
+
+        try {
+            if (!$profile_img) {
+                throw new \Exception('Please upload a file.');
+            }
+
+            $directory = 'images/profileimgs/';
+            $filename = $user->id.'.'.$profile_img->getClientOriginalExtension();
+
+            if ($user->profile_img != 'default.png') {
+                $file = $directory.$user->profile_img;
+                //$destinationPath = 'uploads/' . $id . '/';
+
+                if (File::exists($file)) {
+                    if (!unlink($file)) {
+                        throw new \Exception('Failed to unlink old profile image.');
+                    }
+                }
+            }
+
+            if ($profile_img) {
+                // Make image directory if needed
+                if (!file_exists($directory)) {
+                    // Create the directory.
+                    if (!mkdir($directory, 0755, true)) {
+                        $this->setError('error', 'Failed to create image directory.');
+
+                        return false;
+                    }
+                    chmod($directory, 0755);
+                }
+
+                if ($profile_img->getClientOriginalExtension() == 'gif') {
+                    if (!$profile_img->move(public_path($directory), $filename)) {
+                        throw new \Exception('Failed to move file.');
+                    }
+                } else {
+                    if (!Image::make($profile_img)->save(public_path($directory.$filename))) {
+                        throw new \Exception('Failed to process banner.');
+                    }
+                }
+            }
+            
+            $user->profile_img = $filename;
+            $user->save();
+
+            return $this->commitReturn($profile_img);
+        } catch (\Exception $e) {
+            $this->setError('error', $e->getMessage());
+        }
+
+        return $this->rollbackReturn(false);
+    }
+
+    /**
      * Bans a user. 
      *
      * @param  array                  $data
