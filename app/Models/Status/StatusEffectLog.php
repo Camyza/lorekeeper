@@ -2,11 +2,9 @@
 
 namespace App\Models\Status;
 
-use Config;
 use App\Models\Model;
 
-class StatusEffectLog extends Model
-{
+class StatusEffectLog extends Model {
     /**
      * The attributes that are mass assignable.
      *
@@ -15,7 +13,7 @@ class StatusEffectLog extends Model
     protected $fillable = [
         'sender_id', 'recipient_id',
         'log', 'log_type', 'data',
-        'status_effect_id', 'quantity'
+        'status_effect_id', 'quantity',
     ];
 
     /**
@@ -41,27 +39,29 @@ class StatusEffectLog extends Model
     /**
      * Get the user who initiated the logged action.
      */
-    public function sender()
-    {
-        if($this->sender_type == 'User') return $this->belongsTo('App\Models\User\User', 'sender_id');
+    public function sender() {
+        if ($this->sender_type == 'User') {
+            return $this->belongsTo('App\Models\User\User', 'sender_id');
+        }
+
         return $this->belongsTo('App\Models\Character\Character', 'sender_id');
     }
 
     /**
      * Get the user who received the logged action.
      */
-    public function recipient()
-    {
-        if($this->recipient_type == 'User') return $this->belongsTo('App\Models\User\User', 'recipient_id');
+    public function recipient() {
+        if ($this->recipient_type == 'User') {
+            return $this->belongsTo('App\Models\User\User', 'recipient_id');
+        }
+
         return $this->belongsTo('App\Models\Character\Character', 'recipient_id');
     }
 
     /**
      * Get the status effect that is the target of the action.
      */
-    public function status()
-    {
+    public function status() {
         return $this->belongsTo('App\Models\Status\StatusEffect', 'status_effect_id');
     }
-
 }

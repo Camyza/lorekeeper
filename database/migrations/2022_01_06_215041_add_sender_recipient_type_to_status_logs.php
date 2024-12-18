@@ -4,15 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddSenderRecipientTypeToStatusLogs extends Migration
-{
+class AddSenderRecipientTypeToStatusLogs extends Migration {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
-    {
+    public function up() {
         Schema::table('status_effects_log', function (Blueprint $table) {
             //
             $table->enum('sender_type', ['User', 'Character'])->nullable()->default(null);
@@ -22,11 +18,8 @@ class AddSenderRecipientTypeToStatusLogs extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
-    {
+    public function down() {
         Schema::table('status_effects_log', function (Blueprint $table) {
             //
             $table->dropColumn('sender_type');

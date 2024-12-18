@@ -1,4 +1,5 @@
 <?php
+
 return [
 
     // FORMAT EXAMPLE.
@@ -13,7 +14,7 @@ return [
     // ],
 
     'status_effects' => [
-        'key' => 'status_effects',
+        'key'      => 'status_effects',
         'wiki_key' => 'Status_Effects',
         'creators' => json_encode([
             'Mercury' => 'https://github.com/itinerare/',

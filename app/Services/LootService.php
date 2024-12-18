@@ -53,12 +53,12 @@ class LootService extends Service {
                 }
             }
 
-            if(isset($data['sublist_status_id'])) {
-                foreach($data['sublist_status_id'] as $key=>$id) {
+            if (isset($data['sublist_status_id'])) {
+                foreach ($data['sublist_status_id'] as $key=>$id) {
                     $data['data'][($key + 1)] = [
                         'status_id' => $id,
-                        'criteria' => $data['sublist_criteria'][$key],
-                        'quantity' => $data['sublist_quantity'][$key],
+                        'criteria'  => $data['sublist_criteria'][$key],
+                        'quantity'  => $data['sublist_quantity'][$key],
                     ];
                 }
             }
@@ -111,12 +111,12 @@ class LootService extends Service {
                 }
             }
 
-            if(isset($data['sublist_status_id'])) {
-                foreach($data['sublist_status_id'] as $key=>$id) {
+            if (isset($data['sublist_status_id'])) {
+                foreach ($data['sublist_status_id'] as $key=>$id) {
                     $data['data'][($key + 1)] = [
                         'status_id' => $id,
-                        'criteria' => $data['sublist_criteria'][$key],
-                        'quantity' => $data['sublist_quantity'][$key],
+                        'criteria'  => $data['sublist_criteria'][$key],
+                        'quantity'  => $data['sublist_quantity'][$key],
                     ];
                 }
             }

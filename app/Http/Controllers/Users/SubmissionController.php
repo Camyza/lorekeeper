@@ -12,8 +12,8 @@ use App\Models\Item\Item;
 use App\Models\Item\ItemCategory;
 use App\Models\Prompt\Prompt;
 use App\Models\Raffle\Raffle;
-use App\Models\Submission\Submission;
 use App\Models\Status\StatusEffect;
+use App\Models\Submission\Submission;
 use App\Models\User\User;
 use App\Models\User\UserItem;
 use App\Services\SubmissionManager;
@@ -113,7 +113,7 @@ class SubmissionController extends Controller {
             'items'                  => Item::orderBy('name')->released()->pluck('name', 'id'),
             'character_items'        => Item::whereIn('item_category_id', ItemCategory::where('is_character_owned', 1)->pluck('id')->toArray())->orderBy('name')->released()->pluck('name', 'id'),
             'currencies'             => Currency::where('is_user_owned', 1)->orderBy('name')->pluck('name', 'id'),
-            'statuses' => StatusEffect::orderBy('name')->pluck('name', 'id'),
+            'statuses'               => StatusEffect::orderBy('name')->pluck('name', 'id'),
             'inventory'              => $inventory,
             'page'                   => 'submission',
             'expanded_rewards'       => config('lorekeeper.extensions.character_reward_expansion.expanded'),
@@ -157,7 +157,7 @@ class SubmissionController extends Controller {
             'items'                  => Item::orderBy('name')->released()->pluck('name', 'id'),
             'character_items'        => Item::whereIn('item_category_id', ItemCategory::where('is_character_owned', 1)->pluck('id')->toArray())->orderBy('name')->released()->pluck('name', 'id'),
             'currencies'             => Currency::where('is_user_owned', 1)->orderBy('name')->pluck('name', 'id'),
-            'statuses' => StatusEffect::orderBy('name')->pluck('name', 'id'),
+            'statuses'               => StatusEffect::orderBy('name')->pluck('name', 'id'),
             'inventory'              => $inventory,
             'page'                   => 'submission',
             'expanded_rewards'       => config('lorekeeper.extensions.character_reward_expansion.expanded'),
@@ -406,7 +406,7 @@ class SubmissionController extends Controller {
             'item_filter'            => Item::orderBy('name')->released()->get()->keyBy('id'),
             'items'                  => Item::orderBy('name')->released()->pluck('name', 'id'),
             'currencies'             => Currency::where('is_user_owned', 1)->orderBy('name')->pluck('name', 'id'),
-            'statuses' => StatusEffect::orderBy('name')->pluck('name', 'id'),
+            'statuses'               => StatusEffect::orderBy('name')->pluck('name', 'id'),
             'raffles'                => Raffle::where('rolled_at', null)->where('is_active', 1)->orderBy('name')->pluck('name', 'id'),
             'page'                   => 'submission',
             'expanded_rewards'       => config('lorekeeper.extensions.character_reward_expansion.expanded'),
@@ -438,7 +438,7 @@ class SubmissionController extends Controller {
             'character_items'        => Item::whereIn('item_category_id', ItemCategory::where('is_character_owned', 1)->pluck('id')->toArray())->orderBy('name')->released()->pluck('name', 'id'),
             'categories'             => ItemCategory::orderBy('sort', 'DESC')->get(),
             'currencies'             => Currency::where('is_user_owned', 1)->orderBy('name')->pluck('name', 'id'),
-            'statuses' => StatusEffect::orderBy('name')->pluck('name', 'id'),
+            'statuses'               => StatusEffect::orderBy('name')->pluck('name', 'id'),
             'item_filter'            => Item::orderBy('name')->released()->get()->keyBy('id'),
             'items'                  => Item::orderBy('name')->released()->pluck('name', 'id'),
             'inventory'              => $inventory,

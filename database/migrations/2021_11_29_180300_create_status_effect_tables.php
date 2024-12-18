@@ -4,15 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStatusEffectTables extends Migration
-{
+class CreateStatusEffectTables extends Migration {
     /**
      * Run the migrations.
-     *
-     * @return void
      */
-    public function up()
-    {
+    public function up() {
         Schema::create('status_effects', function (Blueprint $table) {
             $table->engine = 'InnoDB';
             $table->increments('id');
@@ -60,11 +56,8 @@ class CreateStatusEffectTables extends Migration
 
     /**
      * Reverse the migrations.
-     *
-     * @return void
      */
-    public function down()
-    {
+    public function down() {
         Schema::dropIfExists('status_effects');
         Schema::dropIfExists('character_status_effects');
         Schema::dropIfExists('status_effects_log');

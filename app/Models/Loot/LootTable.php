@@ -13,7 +13,7 @@ class LootTable extends Model {
      * @var array
      */
     protected $fillable = [
-        'name', 'display_name', 'data'
+        'name', 'display_name', 'data',
     ];
 
     /**
@@ -37,8 +37,8 @@ class LootTable extends Model {
      * @var array
      */
     public static $createRules = [
-        'name'         => 'required',
-        'display_name' => 'required',
+        'name'                => 'required',
+        'display_name'        => 'required',
         'subtable_criteria.*' => 'required_with:subtable_status_id.*',
         'subtable_quantity.*' => 'required_with:subtable_quantity.*',
     ];
@@ -49,8 +49,8 @@ class LootTable extends Model {
      * @var array
      */
     public static $updateRules = [
-        'name'         => 'required',
-        'display_name' => 'required',
+        'name'                => 'required',
+        'display_name'        => 'required',
         'subtable_criteria.*' => 'required_with:subtable_status_id.*',
         'subtable_quantity.*' => 'required_with:subtable_quantity.*',
     ];
@@ -119,14 +119,16 @@ class LootTable extends Model {
     /**
      * Rolls on the loot table and consolidates the rewards.
      *
-     * @param int $quantity
+     * @param int        $quantity
+     * @param mixed      $isCharacter
+     * @param mixed|null $character
      *
      * @return \Illuminate\Support\Collection
      */
     public function roll($quantity = 1, $isCharacter = false, $character = null) {
         $rewards = createAssetsArray($isCharacter);
 
-        $loot = $this->loot()->where('subtable_id', null)->orWhere(function($query) use($isCharacter, $character) {
+        $loot = $this->loot()->where('subtable_id', null)->orWhere(function ($query) use ($isCharacter, $character) {
             // Collect any status-specific rows
             if ($isCharacter && $character) {
                 // Check for subtables

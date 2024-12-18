@@ -50,7 +50,7 @@ class LootTableController extends Controller {
             'items'      => Item::orderBy('name')->pluck('name', 'id'),
             'categories' => ItemCategory::orderBy('sort', 'DESC')->pluck('name', 'id'),
             'currencies' => Currency::orderBy('name')->pluck('name', 'id'),
-            'statuses' => StatusEffect::orderBy('name')->pluck('name', 'id'),
+            'statuses'   => StatusEffect::orderBy('name')->pluck('name', 'id'),
             'tables'     => LootTable::orderBy('name')->pluck('name', 'id'),
             'rarities'   => Rarity::orderBy('sort')->pluck('name', 'id')->toArray(),
         ]);
@@ -74,7 +74,7 @@ class LootTableController extends Controller {
             'items'      => Item::orderBy('name')->pluck('name', 'id'),
             'categories' => ItemCategory::orderBy('sort', 'DESC')->pluck('name', 'id'),
             'currencies' => Currency::orderBy('name')->pluck('name', 'id'),
-            'statuses' => StatusEffect::orderBy('name')->pluck('name', 'id'),
+            'statuses'   => StatusEffect::orderBy('name')->pluck('name', 'id'),
             'tables'     => LootTable::orderBy('name')->pluck('name', 'id'),
             'rarities'   => Rarity::orderBy('sort')->pluck('name', 'id')->toArray(),
         ]);

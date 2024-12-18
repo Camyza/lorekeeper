@@ -146,8 +146,11 @@ function getAssetModelString($type, $namespaced = true) {
             break;
 
         case 'statuses':
-            if($namespaced) return '\App\Models\Status\StatusEffect';
-            else return 'StatusEffect';
+            if ($namespaced) {
+                return '\App\Models\Status\StatusEffect';
+            } else {
+                return 'StatusEffect';
+            }
             break;
     }
 
@@ -384,12 +387,13 @@ function fillCharacterAssets($assets, $sender, $recipient, $logType, $data, $sub
                     return false;
                 }
             }
-        }
-        elseif($key == 'statuses' && count($contents))
-        {
-            $service = new \App\Services\StatusEffectManager;
-            foreach($contents as $asset)
-                if(!$service->creditStatusEffect($sender, $recipient, $logType, $data['data'], $asset['asset'], $asset['quantity'])) return false;
+        } elseif ($key == 'statuses' && count($contents)) {
+            $service = new App\Services\StatusEffectManager;
+            foreach ($contents as $asset) {
+                if (!$service->creditStatusEffect($sender, $recipient, $logType, $data['data'], $asset['asset'], $asset['quantity'])) {
+                    return false;
+                }
+            }
         }
     }
 

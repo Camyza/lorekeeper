@@ -4,16 +4,14 @@ namespace App\Models\Character;
 
 use App\Models\Model;
 
-class CharacterStatusEffect extends Model
-{
-
+class CharacterStatusEffect extends Model {
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'quantity', 'character_id', 'status_effect_id'
+        'quantity', 'character_id', 'status_effect_id',
     ];
 
     /**
@@ -39,16 +37,14 @@ class CharacterStatusEffect extends Model
     /**
      * Get the character the record belongs to.
      */
-    public function character()
-    {
+    public function character() {
         return $this->belongsTo('App\Models\Character\Character');
     }
 
     /**
      * Get the status effect associated with this record.
      */
-    public function status()
-    {
+    public function status() {
         return $this->belongsTo('App\Models\Status\StatusEffect');
     }
 
@@ -63,8 +59,7 @@ class CharacterStatusEffect extends Model
      *
      * @return string
      */
-    public function getNameWithQuantityAttribute()
-    {
-        return $this->status->name . ' [Severity: ' . $this->quantity . ']';
+    public function getNameWithQuantityAttribute() {
+        return $this->status->name.' [Severity: '.$this->quantity.']';
     }
 }

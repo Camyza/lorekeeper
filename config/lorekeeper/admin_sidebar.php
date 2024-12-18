@@ -176,7 +176,7 @@ return [
             ],
             [
                 'name' => 'Status Effects',
-                'url' => 'admin/data/status-effects'
+                'url'  => 'admin/data/status-effects',
             ],
             [
                 'name' => 'Shops',

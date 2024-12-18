@@ -1,15 +1,14 @@
-<?php namespace App\Services\Item;
+<?php
 
+namespace App\Services\Item;
+
+use App\Models\Character\Character;
+use App\Models\Status\StatusEffect;
+use App\Services\InventoryManager;
 use App\Services\Service;
-
 use DB;
 
-use App\Models\Status\StatusEffect;
-use App\Models\Character\Character;
-use App\Services\InventoryManager;
-
-class BuffService extends Service
-{
+class BuffService extends Service {
     /*
     |--------------------------------------------------------------------------
     | Buff Service
@@ -24,8 +23,7 @@ class BuffService extends Service
      *
      * @return array
      */
-    public function getEditData()
-    {
+    public function getEditData() {
         return [
             'statuses' => StatusEffect::orderBy('name', 'DESC')->pluck('name', 'id'),
         ];
@@ -34,38 +32,37 @@ class BuffService extends Service
     /**
      * Processes the data attribute of the tag and returns it in the preferred format.
      *
-     * @param  string  $tag
+     * @param string $tag
+     *
      * @return mixed
      */
-    public function getTagData($tag)
-    {
+    public function getTagData($tag) {
         $rewards = [];
-        if($tag->data) {
+        if ($tag->data) {
             $assets = parseAssetData($tag->data);
-            foreach($assets as $type => $a)
-            {
+            foreach ($assets as $type => $a) {
                 $class = getAssetModelString($type, false);
-                foreach($a as $id => $asset)
-                {
-                    $rewards = (array)[
+                foreach ($a as $id => $asset) {
+                    $rewards = (array) [
                         'status_effect_id' => $id,
-                        'quantity' => $asset['quantity']
+                        'quantity'         => $asset['quantity'],
                     ];
                 }
             }
         }
+
         return $rewards;
     }
 
     /**
      * Processes the data attribute of the tag and returns it in the preferred format.
      *
-     * @param  string  $tag
-     * @param  array   $data
+     * @param string $tag
+     * @param array  $data
+     *
      * @return bool
      */
-    public function updateData($tag, $data)
-    {
+    public function updateData($tag, $data) {
         DB::beginTransaction();
 
         try {
@@ -80,49 +77,56 @@ class BuffService extends Service
             $tag->update(['data' => json_encode($assets)]);
 
             return $this->commitReturn(true);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->setError('error', $e->getMessage());
         }
+
         return $this->rollbackReturn(false);
     }
-
 
     /**
      * Acts upon the item when used from the inventory.
      *
-     * @param  \App\Models\User\UserItem  $stacks
-     * @param  \App\Models\User\User      $user
-     * @param  array                      $data
+     * @param \App\Models\User\UserItem $stacks
+     * @param \App\Models\User\User     $user
+     * @param array                     $data
+     *
      * @return bool
      */
-    public function act($stacks, $user, $data)
-    {
+    public function act($stacks, $user, $data) {
         DB::beginTransaction();
 
         try {
-            foreach($stacks as $key=>$stack) {
+            foreach ($stacks as $key=>$stack) {
                 // We don't want to let anyone who isn't the owner of the box open it,
                 // so do some validation...
-                if($stack->user_id != $user->id) throw new \Exception("This item does not belong to you.");
+                if ($stack->user_id != $user->id) {
+                    throw new \Exception('This item does not belong to you.');
+                }
 
                 $character = Character::where('id', $data['buff_character_id'])->first();
-                if(!$character) throw new \Exception('Invalid character selected.');
+                if (!$character) {
+                    throw new \Exception('Invalid character selected.');
+                }
 
                 // Next, try to delete the item. If successful, we can start distributing rewards.
-                if((new InventoryManager)->debitStack($stack->user, 'Buff Applied', ['data' => ''], $stack, $data['quantities'][$key])) {
-
-                    for($q=0; $q<$data['quantities'][$key]; $q++) {
+                if ((new InventoryManager)->debitStack($stack->user, 'Buff Applied', ['data' => ''], $stack, $data['quantities'][$key])) {
+                    for ($q = 0; $q < $data['quantities'][$key]; $q++) {
                         // Distribute user rewards
-                        if(!$rewards = fillCharacterAssets(parseAssetData($stack->item->tag('buff')->data), $user, $character, 'Buff Applied', [
-                            'data' => 'Received buff from using '.$stack->item->name
-                        ])) throw new \Exception("Failed to use buff.");
+                        if (!$rewards = fillCharacterAssets(parseAssetData($stack->item->tag('buff')->data), $user, $character, 'Buff Applied', [
+                            'data' => 'Received buff from using '.$stack->item->name,
+                        ])) {
+                            throw new \Exception('Failed to use buff.');
+                        }
                     }
                 }
             }
+
             return $this->commitReturn(true);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->setError('error', $e->getMessage());
         }
+
         return $this->rollbackReturn(false);
     }
 }
