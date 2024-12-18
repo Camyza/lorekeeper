@@ -11,6 +11,7 @@ use App\Models\Item\Item;
 use App\Models\Loot\LootTable;
 use App\Models\Prompt\Prompt;
 use App\Models\Raffle\Raffle;
+use App\Models\Status\StatusEffect;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCharacter;
 use App\Models\User\User;
@@ -441,6 +442,8 @@ class SubmissionManager extends Service {
                                 break;
                             case 'Element': $elementIds[] = $id;
                                 break;
+                            case 'StatusEffect': $statusIds[] = $id;
+                                break;
                         }
                     }
                 } // Expanded character rewards
@@ -449,9 +452,11 @@ class SubmissionManager extends Service {
             array_unique($itemIds);
             array_unique($tableIds);
             array_unique($elementIds);
+            array_unique($statusIds);
             $currencies = Currency::whereIn('id', $currencyIds)->where('is_character_owned', 1)->get()->keyBy('id');
             $items = Item::whereIn('id', $itemIds)->get()->keyBy('id');
             $tables = LootTable::whereIn('id', $tableIds)->get()->keyBy('id');
+            $statuses = StatusEffect::whereIn('id', $statusIds)->get()->keyBy('id');
             $elements = Element::whereIn('id', $elementIds)->get()->keyBy('id');
 
             // We're going to remove all characters from the submission and reattach them with the updated data
@@ -466,6 +471,7 @@ class SubmissionManager extends Service {
                     'items'        => $items,
                     'tables'       => $tables,
                     'elements'     => $elements,
+                    'statuses'     => $statuses,
                 ], true);
 
                 if (!$assets = fillCharacterAssets($assets, $user, $c, $promptLogType, $promptData, $submission->user)) {
@@ -651,9 +657,13 @@ class SubmissionManager extends Service {
                         case 'Points': if ($data['character_rewardable_quantity'][$data['character_id']][$key]) {
                             addAsset($assets, 'Points', $data['character_rewardable_quantity'][$data['character_id']][$key]);
                         } break;
+                        case 'StatusEffect': if ($data['character_rewardable_quantity'][$data['character_id']][$key]) {
+                            addAsset($assets, $data['statuses'][$reward], $data['character_rewardable_quantity'][$data['character_id']][$key]);
+                        } break;
                         case 'Element': // we don't check for quantity here
                             addAsset($assets, $data['elements'][$reward], 1);
                             break;
+
                     }
                 }
             }
@@ -862,6 +872,8 @@ class SubmissionManager extends Service {
                             break;
                         case 'Element': $elementIds[] = $id;
                             break;
+                        case 'StatusEffect': $statusIds[] = $id;
+                            break;
                     }
                 }
             } // Expanded character rewards
@@ -870,10 +882,12 @@ class SubmissionManager extends Service {
         array_unique($itemIds);
         array_unique($tableIds);
         array_unique($elementIds);
+        array_unique($statusIds);
         $currencies = Currency::whereIn('id', $currencyIds)->where('is_character_owned', 1)->get()->keyBy('id');
         $items = Item::whereIn('id', $itemIds)->get()->keyBy('id');
         $tables = LootTable::whereIn('id', $tableIds)->get()->keyBy('id');
         $elements = Element::whereIn('id', $elementIds)->get()->keyBy('id');
+        $statuses = StatusEffect::whereIn('id', $statusIds)->get()->keyBy('id');
 
         // Attach characters
         foreach ($characters as $key => $c) {

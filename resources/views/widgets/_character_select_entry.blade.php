@@ -53,7 +53,7 @@
                                         <td>
                                             {!! Form::select(
                                                 'character_rewardable_type[' . $character->character_id . '][]',
-                                                ['Item' => 'Item', 'Currency' => 'Currency', 'LootTable' => 'Loot Table', 'Exp' => 'Exp', 'Points' => 'Stat Points', 'Element' => 'Element'],
+                                                ['Item' => 'Item', 'Currency' => 'Currency', 'LootTable' => 'Loot Table', 'Exp' => 'Exp', 'Points' => 'Stat Points', 'Element' => 'Element', 'StatusEffect' => 'Status Effect'],
                                                 $reward->rewardable_type,
                                                 [
                                                     'class' => 'form-control character-rewardable-type',
@@ -76,6 +76,11 @@
                                                 'class' => 'form-control character-element-id',
                                                 'placeholder' => 'Select Element',
                                             ]) !!}</div>
+                                            <div class="character-statuses  {{ $reward->rewardable_type == 'StatusEffect' ? 'show' : 'hide'}}">{!! Form::select('character_rewardable_id['.$character->character_id.'][]', $statuses, ($reward->rewardable_type == 'StatusEffect' ? $reward->rewardable_id : null) , [
+                                                'class' => 'form-control character-status-id',
+                                                'placeholder' => 'Select Status Effect',
+                                                ]) !!}
+                                            </div>
                                         </td>
                                     @else
                                         <td class="lootDivs">

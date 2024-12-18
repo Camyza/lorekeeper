@@ -7,6 +7,7 @@ use App\Models\Item\Item;
 use App\Models\Item\ItemCategory;
 use App\Models\Model;
 use App\Models\Pet\Pet;
+use App\Models\Status\StatusEffect;
 
 class Loot extends Model {
     /**
@@ -16,7 +17,7 @@ class Loot extends Model {
      */
     protected $fillable = [
         'loot_table_id', 'rewardable_type', 'rewardable_id',
-        'quantity', 'weight', 'data',
+        'quantity', 'weight', 'data', 'subtable_id',
     ];
 
     /**
@@ -74,6 +75,8 @@ class Loot extends Model {
                 return $this->belongsTo(ItemCategory::class, 'rewardable_id');
             case 'ItemCategoryRarity':
                 return $this->belongsTo(ItemCategory::class, 'rewardable_id');
+            case 'Status':
+                return $this->belongsTo(StatusEffect::class, 'rewardable_id');
             case 'None':
                 // Laravel requires a relationship instance to be returned (cannot return null), so returning one that doesn't exist here.
                 return $this->belongsTo(self::class, 'rewardable_id', 'loot_table_id')->whereNull('loot_table_id');

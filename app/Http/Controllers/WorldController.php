@@ -25,6 +25,7 @@ use App\Models\Skill\SkillCategory;
 use App\Models\Species\Species;
 use App\Models\Species\Subtype;
 use App\Models\Stat\Stat;
+use App\Models\Status\StatusEffect;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -364,6 +365,23 @@ class WorldController extends Controller {
 
         return view('world._feature_entry', [
             'feature' => $feature,
+        ]);
+    }
+
+    /**
+     * Shows the status effects page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getStatusEffects(Request $request) {
+        $query = StatusEffect::query();
+        $name = $request->get('name');
+        if ($name) {
+            $query->where('name', 'LIKE', '%'.$name.'%');
+        }
+
+        return view('world.status_effects', [
+            'statuses' => $query->orderBy('name')->paginate(20)->appends($request->query()),
         ]);
     }
 

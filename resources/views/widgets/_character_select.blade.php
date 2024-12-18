@@ -61,7 +61,7 @@
                 <td>
                     {!! Form::select(
                         'character_rewardable_type[]',
-                        ['Item' => 'Item', 'Currency' => 'Currency', 'Exp' => 'Exp', 'Points' => 'Stat Points'] + (isset($showLootTables) && $showLootTables ? ['LootTable' => 'Loot Table'] : []) + (isset($showElements) && $showElements ? ['Element' => 'Element'] : []),
+                        ['Item' => 'Item', 'Currency' => 'Currency', 'Exp' => 'Exp', 'Points' => 'Stat Points'] + (isset($showLootTables) && $showLootTables ? ['LootTable' => 'Loot Table'] : []) + (isset($showElements) && $showElements ? ['Element' => 'Element'] : []) + (isset($showStatuses) && $showStatuses ? ['StatusEffect' => 'Status Effect'] : []),
                         null,
                         [
                             'class' => 'form-control character-rewardable-type',
@@ -78,6 +78,9 @@
                     @endif
                     @if (isset($showElements) && $showElements)
                         <div class="character-elements hide">{!! Form::select('character_element_id[]', $elements, 0, ['class' => 'form-control character-element-id', 'placeholder' => 'Select Element']) !!}</div>
+                    @endif
+                    @if (isset($showStatuses) && $showStatuses)
+                        <div class="character-statuses hide">{!! Form::select('character_rewardable_id[]', $statuses, 0, ['class' => 'form-control character-status-id', 'placeholder' => 'Select Status Effect']) !!}</div>
                     @endif
                 </td>
             @else

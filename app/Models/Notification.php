@@ -172,4 +172,6 @@ class Notification extends Model {
     public const GALLERY_SUBMISSION_STAFF_COMMENTS = 513;
     public const GALLERY_SUBMISSION_EDITED = 514;
     public const GALLERY_SUBMISSION_PARTICIPANT = 515;
+    public const CHARACTER_STATUS_GRANT = 521;
+    public const CHARACTER_STATUS_REMOVAL = 522;
 }

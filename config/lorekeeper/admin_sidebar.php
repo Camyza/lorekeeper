@@ -199,6 +199,10 @@ return [
                 'url'  => 'admin/data/traits',
             ],
             [
+                'name' => 'Status Effects',
+                'url'  => 'admin/data/status-effects',
+            ],
+            [
                 'name' => 'Shops',
                 'url'  => 'admin/data/shops',
             ],
