@@ -5,7 +5,7 @@
     <div class="text-center mb-3">
         <div class="mb-1">
             @if ($stock->item->has_image)
-                <a href="{{ $stock->item->idUrl }}"><img src="{{ $stock->item->imageUrl }}" alt="{{ $stock->item->name }}" /></a>
+                <a href="{{ $stock->item->idUrl }}"><img class="img-fluid" src="{{ $stock->item->imageUrl }}" alt="{{ $stock->item->name }}" /></a>
             @endif
         </div>
         <div><a href="{{ $stock->item->idUrl }}"><strong>{{ $stock->item->name }}</strong></a></div>

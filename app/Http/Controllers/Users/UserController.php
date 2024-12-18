@@ -16,6 +16,8 @@ use App\Models\Item\Item;
 use App\Models\Item\ItemCategory;
 use App\Models\Pet\Pet;
 use App\Models\Pet\PetCategory;
+use App\Models\Prompt\Prompt;
+use App\Models\Rarity;
 use App\Models\User\User;
 use App\Models\User\UserCurrency;
 use App\Models\User\UserPet;
@@ -125,7 +127,7 @@ class UserController extends Controller {
      */
     public function getUserCharacters($name) {
         $query = Character::myo(0)->where('user_id', $this->user->id);
-        $imageQuery = CharacterImage::images(Auth::check() ? Auth::user() : null)->with('features')->with('rarity')->with('species')->with('features');
+        $imageQuery = CharacterImage::images(Auth::user() ?? null)->with('features')->with('rarity')->with('species')->with('features');
 
         if ($sublists = Sublist::where('show_main', 0)->get()) {
             $subCategories = [];
@@ -161,7 +163,7 @@ class UserController extends Controller {
      */
     public function getUserSublist($name, $key) {
         $query = Character::myo(0)->where('user_id', $this->user->id);
-        $imageQuery = CharacterImage::images(Auth::check() ? Auth::user() : null)->with('features')->with('rarity')->with('species')->with('features');
+        $imageQuery = CharacterImage::images(Auth::user() ?? null)->with('features')->with('rarity')->with('species')->with('features');
 
         $sublist = Sublist::where('key', $key)->first();
         if (!$sublist) {
@@ -216,10 +218,30 @@ class UserController extends Controller {
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function getUserInventory($name) {
-        $categories = ItemCategory::visible(Auth::check() ? Auth::user() : null)->orderBy('sort', 'DESC')->get();
+    public function getUserInventory(Request $request, $name) {
+        $categories = ItemCategory::visible(Auth::user() ?? null)->orderBy('sort', 'DESC')->get();
+        $query = Item::query();
+        $data = $request->only(['item_category_id', 'name', 'artist', 'rarity_id']);
+        if (isset($data['item_category_id'])) {
+            $query->where('item_category_id', $data['item_category_id']);
+        }
+        if (isset($data['name'])) {
+            $query->where('name', 'LIKE', '%'.$data['name'].'%');
+        }
+        if (isset($data['artist'])) {
+            $query->where('artist_id', $data['artist']);
+        }
+        if (isset($data['rarity_id'])) {
+            if ($data['rarity_id'] == 'withoutOption') {
+                $query->whereNull('data->rarity_id');
+            } else {
+                $query->where('data->rarity_id', $data['rarity_id']);
+            }
+        }
+
         $items = count($categories) ?
             $this->user->items()
+                ->whereIn('items.id', $query->pluck('id')->toArray())
                 ->where('count', '>', 0)
                 ->orderByRaw('FIELD(item_category_id,'.implode(',', $categories->pluck('id')->toArray()).')')
                 ->orderBy('name')
@@ -227,6 +249,7 @@ class UserController extends Controller {
                 ->get()
                 ->groupBy(['item_category_id', 'id']) :
             $this->user->items()
+                ->whereIn('items.id', $query->pluck('id')->toArray())
                 ->where('count', '>', 0)
                 ->orderBy('name')
                 ->orderBy('updated_at')
@@ -240,6 +263,8 @@ class UserController extends Controller {
             'userOptions' => User::where('id', '!=', $this->user->id)->orderBy('name')->pluck('name', 'id')->toArray(),
             'user'        => $this->user,
             'logs'        => $this->user->getItemLogs(),
+            'artists'     => User::whereIn('id', Item::whereNotNull('artist_id')->pluck('artist_id')->toArray())->pluck('name', 'id')->toArray(),
+            'rarities'    => ['withoutOption' => 'No Rarity'] + Rarity::orderBy('rarities.sort', 'DESC')->pluck('name', 'id')->toArray(),
         ]);
     }
 
@@ -284,7 +309,7 @@ class UserController extends Controller {
     }
 
     /**
-     * Shows a user's profile.
+     * Shows a user's Bank.
      *
      * @param string $name
      *
@@ -495,10 +520,19 @@ class UserController extends Controller {
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function getUserSubmissions($name) {
+    public function getUserSubmissions(Request $request, $name) {
+        $logs = $this->user->getSubmissions(Auth::user() ?? null);
+        if ($request->get('prompt_ids')) {
+            $logs->whereIn('prompt_id', $request->get('prompt_ids'));
+        }
+        if ($request->get('sort')) {
+            $logs->orderBy('created_at', $request->get('sort') == 'newest' ? 'DESC' : 'ASC');
+        }
+
         return view('user.submission_logs', [
-            'user' => $this->user,
-            'logs' => $this->user->getSubmissions(Auth::check() ? Auth::user() : null),
+            'user'    => $this->user,
+            'logs'    => $logs->paginate(30)->appends($request->query()),
+            'prompts' => Prompt::active()->pluck('name', 'id'),
         ]);
     }
 
@@ -512,7 +546,57 @@ class UserController extends Controller {
     public function getUserGallery(Request $request, $name) {
         return view('user.gallery', [
             'user'        => $this->user,
-            'submissions' => $this->user->gallerySubmissions()->paginate(20)->appends($request->query()),
+            'submissions' => $this->user->gallerySubmissions()->visible(Auth::user() ?? null)->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     * Shows a user's character art.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserCharacterArt(Request $request, $name) {
+        $characters = Character::whereHas('image', function ($query) {
+            $query->whereHas('artists', function ($query) {
+                $query->where('user_id', $this->user->id);
+            });
+        });
+
+        if (!Auth::check() || !(Auth::check() && Auth::user()->hasPower('manage_characters'))) {
+            $characters->visible();
+        }
+
+        return view('user.character_designs', [
+            'user'        => $this->user,
+            'characters'  => $characters->get(),
+            'isDesign'    => false,
+        ]);
+    }
+
+    /**
+     * Shows a user's character designs.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserCharacterDesigns(Request $request, $name) {
+        $characters = Character::whereHas('image', function ($query) {
+            $query->whereHas('designers', function ($query) {
+                $query->where('user_id', $this->user->id);
+            });
+        });
+
+        if (!Auth::check() || !(Auth::check() && Auth::user()->hasPower('manage_characters'))) {
+            $characters->visible();
+        }
+
+        return view('user.character_designs', [
+            'user'        => $this->user,
+            'characters'  => $characters->get(),
+            'isDesign'    => true,
         ]);
     }
 
@@ -527,7 +611,7 @@ class UserController extends Controller {
         return view('user.favorites', [
             'user'       => $this->user,
             'characters' => false,
-            'favorites'  => GallerySubmission::whereIn('id', $this->user->galleryFavorites()->pluck('gallery_submission_id')->toArray())->visible(Auth::check() ? Auth::user() : null)->accepted()->orderBy('created_at', 'DESC')->paginate(20)->appends($request->query()),
+            'favorites'  => GallerySubmission::whereIn('id', $this->user->galleryFavorites()->pluck('gallery_submission_id')->toArray())->visible(Auth::user() ?? null)->orderBy('created_at', 'DESC')->paginate(20)->appends($request->query()),
         ]);
     }
 
@@ -546,7 +630,7 @@ class UserController extends Controller {
         return view('user.favorites', [
             'user'       => $this->user,
             'characters' => true,
-            'favorites'  => $this->user->characters->count() ? GallerySubmission::whereIn('id', $userFavorites)->whereIn('id', GalleryCharacter::whereIn('character_id', $userCharacters)->pluck('gallery_submission_id')->toArray())->visible(Auth::check() ? Auth::user() : null)->accepted()->orderBy('created_at', 'DESC')->paginate(20)->appends($request->query()) : null,
+            'favorites'  => $this->user->characters->count() ? GallerySubmission::whereIn('id', $userFavorites)->whereIn('id', GalleryCharacter::whereIn('character_id', $userCharacters)->pluck('gallery_submission_id')->toArray())->visible(Auth::user() ?? null)->orderBy('created_at', 'DESC')->paginate(20)->appends($request->query()) : null,
         ]);
     }
 }

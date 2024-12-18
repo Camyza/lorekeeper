@@ -4,6 +4,7 @@ namespace App\Models\Item;
 
 use App\Models\Model;
 use App\Models\Prompt\Prompt;
+use App\Models\Rarity;
 use App\Models\Shop\Shop;
 use App\Models\User\User;
 
@@ -15,7 +16,7 @@ class Item extends Model {
      */
     protected $fillable = [
         'item_category_id', 'name', 'has_image', 'description', 'parsed_description', 'allow_transfer',
-        'data', 'reference_url', 'artist_alias', 'artist_url', 'artist_id', 'is_released', 'hash',
+        'data', 'reference_url', 'artist_alias', 'artist_url', 'artist_id', 'is_released', 'hash', 'is_deletable',
     ];
 
     protected $appends = ['image_url'];
@@ -32,15 +33,15 @@ class Item extends Model {
      * @var array
      */
     public static $createRules = [
-        'item_category_id'  => 'nullable',
-        'name'              => 'required|unique:items|between:3,100',
-        'description'       => 'nullable',
-        'image'             => 'mimes:png',
-        'rarity'            => 'nullable',
-        'reference_url'     => 'nullable|between:3,200',
-        'uses'              => 'nullable|between:3,250',
-        'release'           => 'nullable|between:3,100',
-        'currency_quantity' => 'nullable|integer|min:1',
+        'item_category_id'   => 'nullable',
+        'name'               => 'required|unique:items|between:3,100',
+        'description'        => 'nullable',
+        'image'              => 'mimes:png',
+        'rarity_id'          => 'nullable',
+        'reference_url'      => 'nullable|between:3,200',
+        'uses'               => 'nullable|between:3,250',
+        'release'            => 'nullable|between:3,100',
+        'currency_quantity'  => 'nullable|integer|min:1',
     ];
 
     /**
@@ -84,6 +85,13 @@ class Item extends Model {
      */
     public function artist() {
         return $this->belongsTo(User::class, 'artist_id');
+    }
+
+    /**
+     * Gets the item's rarity.
+     */
+    public function rarity() {
+        return $this->belongsTo(Rarity::class, $this->attributes['rarity_id'] ?? null, 'id');
     }
 
     /**********************************************************************************************
@@ -145,10 +153,15 @@ class Item extends Model {
      * Scope a query to show only released or "released" (at least one user-owned stack has ever existed) items.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param mixed|null                            $user
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeReleased($query) {
+    public function scopeReleased($query, $user = null) {
+        if ($user && $user->hasPower('edit_data')) {
+            return $query;
+        }
+
         return $query->where('is_released', 1);
     }
 
@@ -182,7 +195,7 @@ class Item extends Model {
      * @return string
      */
     public function getImageFileNameAttribute() {
-        return $this->hash.$this->id.'-image.png';
+        return $this->id.'-'.$this->hash.'-image.png';
     }
 
     /**
@@ -290,12 +303,12 @@ class Item extends Model {
      *
      * @return string
      */
-    public function getRarityAttribute() {
-        if (!isset($this->data) || !isset($this->data['rarity'])) {
+    public function getRarityIdAttribute() {
+        if (!isset($this->data) || !isset($this->data['rarity_id'])) {
             return null;
         }
 
-        return $this->data['rarity'];
+        return $this->data['rarity_id'];
     }
 
     /**

@@ -87,8 +87,8 @@ class Character extends Model {
         'slug'                  => 'required|alpha_dash',
         'description'           => 'nullable',
         'sale_value'            => 'nullable',
-        'image'                 => 'required|mimes:jpeg,jpg,gif,png|max:20000',
-        'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:20000',
+        'image'                 => 'required|mimes:jpeg,jpg,gif,png|max:2048',
+        'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
         'owner_url'             => 'url|nullable',
     ];
 
@@ -103,6 +103,8 @@ class Character extends Model {
         'slug'                  => 'required',
         'description'           => 'nullable',
         'sale_value'            => 'nullable',
+        'image'                 => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
+        'thumbnail'             => 'nullable|mimes:jpeg,jpg,gif,png|max:2048',
     ];
 
     /**
@@ -118,8 +120,8 @@ class Character extends Model {
         'description' => 'nullable',
         'sale_value'  => 'nullable',
         'name'        => 'required',
-        'image'       => 'nullable|mimes:jpeg,gif,png|max:20000',
-        'thumbnail'   => 'nullable|mimes:jpeg,gif,png|max:20000',
+        'image'       => 'nullable|mimes:jpeg,gif,png|max:2048',
+        'thumbnail'   => 'nullable|mimes:jpeg,gif,png|max:2048',
     ];
 
     /**********************************************************************************************
@@ -279,10 +281,15 @@ class Character extends Model {
      * Scope a query to only include visible characters.
      *
      * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param mixed|null                            $user
      *
      * @return \Illuminate\Database\Eloquent\Builder
      */
-    public function scopeVisible($query) {
+    public function scopeVisible($query, $user = null) {
+        if ($user && $user->hasPower('manage_characters')) {
+            return $query;
+        }
+
         return $query->where('is_visible', 1);
     }
 
@@ -389,6 +396,17 @@ class Character extends Model {
     }
 
     /**
+     * Gets the character's warnings, if they exist.
+     */
+    public function getWarningsAttribute() {
+        if (config('lorekeeper.settings.enable_character_content_warnings') && $this->image->content_warnings) {
+            return '<i class="fa fa-exclamation-triangle text-danger" data-toggle="tooltip" title="'.implode(', ', $this->image->content_warnings).'"></i> ';
+        }
+
+        return null;
+    }
+
+    /**
      * Gets the character's page's URL.
      *
      * @return string
@@ -417,6 +435,26 @@ class Character extends Model {
      */
     public function getLogTypeAttribute() {
         return 'Character';
+    }
+
+    /**
+     * Gets the character's trading, gift art and gift writing status as badges.
+     * If this is a MYO slot, only returns trading status.
+     *
+     * @return string
+     */
+    public function getMiniBadgeAttribute() {
+        $tradingCode = $this->is_trading ? 'badge-success' : 'badge-danger';
+        $tradingSection = "<span class='badge ".$tradingCode."'><i class='fas fa-comments-dollar'></i></span>";
+        $nonMyoSection = '';
+
+        if (!$this->is_myo_slot) {
+            $artCode = $this->is_gift_art_allowed == 1 ? 'badge-success' : ($this->is_gift_art_allowed == 2 ? 'badge-warning text-light' : 'badge-danger');
+            $writingCode = $this->is_gift_writing_allowed == 1 ? 'badge-success' : ($this->is_gift_writing_allowed == 2 ? 'badge-warning text-light' : 'badge-danger');
+            $nonMyoSection = "<span class='badge ".$artCode."'><i class='fas fa-pencil-ruler'></i></span> <span class='badge ".$writingCode."'><i class='fas fa-file-alt'></i></span> ";
+        }
+
+        return ' ・ <i class="fas fa-info-circle help-icon m-0" data-toggle="tooltip" data-html="true" title="'.$nonMyoSection.$tradingSection.'"></i>';
     }
 
     /**********************************************************************************************
