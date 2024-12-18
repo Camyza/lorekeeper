@@ -246,8 +246,8 @@ class ShopManager extends Service {
     public function checkUserPurchases($shopStock, $user) {
         $date = $shopStock->purchaseLimitDate;
         $shopQuery = ShopLog::where('shop_id', $shopStock->shop_id)
-                ->where('item_id', $shopStock->item_id)
-                ->where('user_id', $user->id);
+            ->where('item_id', $shopStock->item_id)
+            ->where('user_id', $user->id);
         $shopQuery = isset($date) ? $shopQuery->where('created_at', '>=', date('Y-m-d H:i:s', $date)) : $shopQuery;
 
         // check the costs vs the user's purchase recorded costs

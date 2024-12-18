@@ -384,9 +384,9 @@ function fillUserAssets($assets, $sender, $recipient, $logType, $data) {
 
 /**
  * Returns the total count of all assets in an asset array.
- * 
+ *
  * @param array $array
- * 
+ *
  * @return int
  */
 function countAssets($array) {
