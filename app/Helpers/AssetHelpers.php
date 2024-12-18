@@ -383,6 +383,24 @@ function fillUserAssets($assets, $sender, $recipient, $logType, $data) {
 }
 
 /**
+ * Returns the total count of all assets in an asset array.
+ * 
+ * @param array $array
+ * 
+ * @return int
+ */
+function countAssets($array) {
+    $count = 0;
+    foreach ($array as $key => $contents) {
+        foreach ($contents as $asset) {
+            $count += $asset['quantity'];
+        }
+    }
+
+    return $count;
+}
+
+/**
  * Distributes the assets in an assets array to the given recipient (character).
  * Loot tables will be rolled before distribution.
  *
