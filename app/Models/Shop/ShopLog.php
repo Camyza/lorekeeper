@@ -15,7 +15,7 @@ class ShopLog extends Model {
      * @var array
      */
     protected $fillable = [
-        'shop_id', 'character_id', 'user_id', 'currency_id', 'cost', 'item_id', 'quantity',
+        'shop_id', 'character_id', 'user_id', 'cost', 'item_id', 'quantity', 'stock_type',
     ];
 
     /**
@@ -24,6 +24,16 @@ class ShopLog extends Model {
      * @var string
      */
     protected $table = 'shop_log';
+
+    /**
+     * The attributes that should be cast to native types.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'cost' => 'array',
+    ];
+
     /**
      * Whether the model contains timestamps to be saved and updated.
      *
@@ -66,7 +76,9 @@ class ShopLog extends Model {
      * Get the purchased item.
      */
     public function item() {
-        return $this->belongsTo(Item::class);
+        $model = getAssetModelString(strtolower($this->stock_type ?? 'Item'));
+
+        return $this->belongsTo($model);
     }
 
     /**
@@ -95,6 +107,27 @@ class ShopLog extends Model {
      * @return string
      */
     public function getItemDataAttribute() {
-        return 'Purchased from '.$this->shop->name.' by '.($this->character_id ? $this->character->slug.' (owned by '.$this->user->name.')' : $this->user->displayName).' for '.(int) $this->cost.' '.$this->currency->name.'.';
+        $cost = mergeAssetsArrays(parseAssetData($this->cost['user']), parseAssetData($this->cost['character']));
+
+        return 'Purchased from '.$this->shop->name.' by '.
+            ($this->character_id ? $this->character->slug.' (owned by '.$this->user->name.')' : $this->user->displayName).' using '.
+            (createRewardsString($cost, true, true) == 'Nothing. :(' ? 'Free' : createRewardsString($cost, true, true));
+    }
+
+    /**
+     * Get the cost of the item.
+     */
+    public function getTotalCostAttribute() {
+        return mergeAssetsArrays(parseAssetData($this->cost['user']), parseAssetData($this->cost['character']));
+    }
+
+    /**
+     * Get the cost of the item in a readable format.
+     *
+     * @return string
+     */
+    public function getDisplayCostAttribute() {
+        return createRewardsString(mergeAssetsArrays(parseAssetData($this->cost['user']), parseAssetData($this->cost['character'])), true, true) == 'Nothing. :('
+            ? 'Free' : createRewardsString(mergeAssetsArrays(parseAssetData($this->cost['user']), parseAssetData($this->cost['character'])), true, true);
     }
 }

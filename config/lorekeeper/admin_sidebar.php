@@ -222,6 +222,10 @@ return [
                 'name' => 'Pets',
                 'url'  => 'admin/data/pets',
             ],
+            [
+                'name' => 'Dynamic Limits',
+                'url'  => 'admin/data/limits',
+            ],
         ],
     ],
     'Claymores' => [
@@ -262,6 +266,7 @@ return [
             [
                 'name' => 'Elements',
                 'url'  => 'admin/data/elements',
+                
             ],
         ],
     ],

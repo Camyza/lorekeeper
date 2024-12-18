@@ -253,6 +253,7 @@ Route::group(['prefix' => 'data', 'namespace' => 'Data', 'middleware' => 'power:
     Route::post('shops/stock/delete/{id}', 'ShopController@postDeleteShopStock');
     // misc
     Route::get('shops/stock-type', 'ShopController@getShopStockType');
+    Route::get('shops/stock-cost-type', 'ShopController@getShopStockCostType');
 
     // FEATURES (TRAITS)
     Route::get('trait-categories', 'FeatureController@getIndex');
@@ -347,6 +348,15 @@ Route::group(['prefix' => 'data', 'namespace' => 'Data', 'middleware' => 'power:
     Route::post('elements/create', 'ElementController@postCreateEditElement');
     Route::post('elements/edit/{id?}', 'ElementController@postCreateEditElement');
     Route::post('elements/delete/{id}', 'ElementController@postDeleteElement');
+
+    // DYNAMIC LIMITS
+    Route::get('limits', 'LimitController@getIndex');
+    Route::get('limits/create', 'LimitController@getCreateLimit');
+    Route::get('limits/edit/{id}', 'LimitController@getEditLimit');
+    Route::get('limits/delete/{id}', 'LimitController@getDeleteLimit');
+    Route::post('limits/create', 'LimitController@postCreateEditLimit');
+    Route::post('limits/edit/{id?}', 'LimitController@postCreateEditLimit');
+    Route::post('limits/delete/{id}', 'LimitController@postDeleteLimit');
 });
 
 // PAGES
@@ -674,4 +684,9 @@ Route::group(['prefix' => 'typing', 'middleware' => 'power:edit_data', 'namespac
     Route::post('/', 'ElementController@postTyping');
     Route::get('delete/{id}', 'ElementController@getDeleteTyping');
     Route::post('delete/{id}', 'ElementController@postDeleteTyping');
+});
+
+// LIMITS
+Route::group(['prefix' => 'limits', 'middleware' => 'power:manage_data'], function () {
+    Route::post('/', 'LimitController@postCreateEditLimits');
 });

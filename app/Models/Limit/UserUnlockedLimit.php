@@ -1,18 +1,19 @@
 <?php
 
-namespace App\Models\Shop;
+namespace App\Models\Limit;
 
-use App\Models\Item\Item;
 use App\Models\Model;
+use App\Models\User\User;
 
-class ShopLimit extends Model {
+class UserUnlockedLimit extends Model {
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array
      */
     protected $fillable = [
-        'shop_id', 'item_id',
+        'user_id', 'object_model', 'object_id',
     ];
 
     /**
@@ -20,7 +21,7 @@ class ShopLimit extends Model {
      *
      * @var string
      */
-    protected $table = 'shop_limits';
+    protected $table = 'user_unlocked_limits';
 
     /**********************************************************************************************
 
@@ -28,7 +29,10 @@ class ShopLimit extends Model {
 
     **********************************************************************************************/
 
-    public function item() {
-        return $this->belongsTo(Item::class, 'item_id');
+    /**
+     * Get the user this set of settings belongs to.
+     */
+    public function user() {
+        return $this->belongsTo(User::class);
     }
 }

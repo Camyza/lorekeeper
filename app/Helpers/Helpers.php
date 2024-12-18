@@ -460,6 +460,17 @@ function getDisplayName($model, $id) {
 }
 
 /**
+ * Returns the given objects limits, if any.
+ *
+ * @param mixed $object
+ *
+ * @return bool
+ */
+function getLimits($object) {
+    return App\Models\Limit\Limit::where('object_model', get_class($object))->where('object_id', $object->id)->get();
+}
+
+/**
  * Checks the site setting and returns the appropriate FontAwesome version.
  *
  * @return string

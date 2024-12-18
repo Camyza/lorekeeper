@@ -18,6 +18,7 @@ use App\Models\Gallery\GallerySubmission;
 use App\Models\Item\Item;
 use App\Models\Item\ItemLog;
 use App\Models\Level\LevelLog;
+use App\Models\Limit\UserUnlockedLimit;
 use App\Models\Notification;
 use App\Models\Pet\Pet;
 use App\Models\Pet\PetLog;
@@ -231,6 +232,13 @@ class User extends Authenticatable implements MustVerifyEmail {
      */
     public function commentLikes() {
         return $this->hasMany(CommentLike::class);
+    }
+
+    /**
+     * Gets all of the user's unlocked limits.
+     */
+    public function unlockedLimits() {
+        return $this->hasMany(UserUnlockedLimit::class);
     }
 
     /**********************************************************************************************
