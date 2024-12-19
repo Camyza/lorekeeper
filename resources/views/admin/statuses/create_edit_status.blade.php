@@ -78,7 +78,12 @@
     <h3>Preview</h3>
     <div class="card mb-3">
         <div class="card-body">
-            @include('world._entry', ['imageUrl' => $status->imageUrl, 'name' => $status->displayName, 'description' => $status->parsed_description])
+            @include('world._entry', [
+                'visible' => true,
+                'imageUrl' => $status->imageUrl,
+                'name' => $status->displayName,
+                'description' => $status->parsed_description
+            ])
         </div>
     </div>
 @endif
