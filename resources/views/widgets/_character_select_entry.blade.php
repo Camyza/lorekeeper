@@ -76,10 +76,10 @@
                                                 'class' => 'form-control character-element-id',
                                                 'placeholder' => 'Select Element',
                                             ]) !!}</div>
-                                            <div class="character-statuses  {{ $reward->rewardable_type == 'StatusEffect' ? 'show' : 'hide'}}">{!! Form::select('character_rewardable_id['.$character->character_id.'][]', $statuses, ($reward->rewardable_type == 'StatusEffect' ? $reward->rewardable_id : null) , [
+                                            <div class="character-statuses  {{ $reward->rewardable_type == 'StatusEffect' ? 'show' : 'hide' }}">{!! Form::select('character_rewardable_id[' . $character->character_id . '][]', $statuses, $reward->rewardable_type == 'StatusEffect' ? $reward->rewardable_id : null, [
                                                 'class' => 'form-control character-status-id',
                                                 'placeholder' => 'Select Status Effect',
-                                                ]) !!}
+                                            ]) !!}
                                             </div>
                                         </td>
                                     @else

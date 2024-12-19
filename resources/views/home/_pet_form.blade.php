@@ -63,12 +63,7 @@
             <p>Pets can be detached.</p>
             <div class="form-group">
                 {!! Form::label('id', 'Slug') !!} {!! add_help('Insert your character\'s slug.') !!}
-                {!! Form::select(
-                    'id',
-                    $pet->user->characters()->myo()->pluck('slug', 'id'),
-                    null,
-                    ['class' => 'form-control'],
-                ) !!}
+                {!! Form::select('id', $pet->user->characters()->myo()->pluck('slug', 'id'), null, ['class' => 'form-control']) !!}
             </div>
             <div class="text-right">
                 {!! Form::submit('Attach', ['class' => 'btn btn-primary']) !!}
@@ -95,12 +90,7 @@
         </div>
         <div class="form-group">
             @php
-                $variants =
-                    ['0' => 'Default'] +
-                    $pet->pet
-                        ->variants()
-                        ->pluck('variant_name', 'id')
-                        ->toArray();
+                $variants = ['0' => 'Default'] + $pet->pet->variants()->pluck('variant_name', 'id')->toArray();
             @endphp
             {!! Form::select('variant_id', $variants, $pet->variant_id, ['class' => 'form-control']) !!}
         </div>
@@ -119,12 +109,7 @@
         {!! Form::hidden('is_staff', 1) !!}
         <div class="form-group">
             @php
-                $variants =
-                    ['0' => 'Default'] +
-                    $pet->pet
-                        ->variants()
-                        ->pluck('variant_name', 'id')
-                        ->toArray();
+                $variants = ['0' => 'Default'] + $pet->pet->variants()->pluck('variant_name', 'id')->toArray();
             @endphp
             {!! Form::select('variant_id', $variants, $pet->variant_id, ['class' => 'form-control mt-2']) !!}
         </div>
@@ -141,12 +126,7 @@
         {!! Form::hidden('is_staff', 1) !!}
         <div class="form-group">
             @php
-                $evolutions =
-                    ['0' => 'Default'] +
-                    $pet->pet
-                        ->evolutions()
-                        ->pluck('evolution_name', 'id')
-                        ->toArray();
+                $evolutions = ['0' => 'Default'] + $pet->pet->evolutions()->pluck('evolution_name', 'id')->toArray();
             @endphp
             {!! Form::select('evolution_id', $evolutions, $pet->evolution_id, ['class' => 'form-control mt-2']) !!}
         </div>

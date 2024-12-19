@@ -31,7 +31,8 @@
     <div class="card">
         <h3 class="card-header">Loot</h3>
         <div class="card-body">
-            <p>These are the potential rewards from rolling on this loot table. You can add items, currencies or even another loot table. Chaining multiple loot tables is not recommended, however, and may run the risk of creating an infinite loop. @if (!$table->id)
+            <p>These are the potential rewards from rolling on this loot table. You can add items, currencies or even another loot table. Chaining multiple loot tables is not recommended, however, and may run the risk of creating an infinite loop.
+                @if (!$table->id)
                     You can test loot rolling after the loot table is created.
                 @endif
             </p>
@@ -82,7 +83,7 @@
                     </thead>
                     <tbody class="lootTableBody">
                         @if ($table->id)
-                            @foreach($table->loot()->where('subtable_id', 0)->get() as $loot)
+                            @foreach ($table->loot()->where('subtable_id', 0)->get() as $loot)
                                 @include('admin.loot_tables._loot_entry')
                             @endforeach
                         @endif
@@ -91,11 +92,12 @@
             </div>
             <hr />
             <h5>Conditional Rows</h5>
-            <p>These rows will be added to the base loot table if the character the loot table is being rolled for meets the condition. In the case of multiple possible matches, all will matching results will be added to the table. Note that rows may only be added after saving a sublist once.</p>
+            <p>These rows will be added to the base loot table if the character the loot table is being rolled for meets the condition. In the case of multiple possible matches, all will matching results will be added to the table. Note that rows may
+                only be added after saving a sublist once.</p>
             <p>Note that checking for none of a status does not work if a character has no extant status effects.</p>
             <div id="sublistList" class="my-4">
-                @if(isset($table->data))
-                    @foreach($table->data as $key=>$sublist)
+                @if (isset($table->data))
+                    @foreach ($table->data as $key => $sublist)
                         <div>
                             <div class="input-group mb-3">
                                 {!! Form::select('sublist_status_id[]', $statuses, $sublist['status_id'], ['class' => 'form-control', 'placeholder' => 'Select Status Effect', 'aria-label' => 'Status Effect']) !!}
@@ -120,14 +122,14 @@
                                     </tr>
                                 </thead>
                                 <tbody class="lootTableBody">
-                                    @if($table->id)
-                                        @foreach($table->loot()->where('subtable_id', $key)->get() as $loot)
+                                    @if ($table->id)
+                                        @foreach ($table->loot()->where('subtable_id', $key)->get() as $loot)
                                             @include('admin.loot_tables._loot_entry')
                                         @endforeach
                                     @endif
                                 </tbody>
                             </table>
-                            <hr/>
+                            <hr />
                         </div>
                     @endforeach
                 @endif
@@ -151,7 +153,17 @@
                     <td>{!! Form::select(
                         'rewardable_type[]',
                         config('lorekeeper.extensions.item_entry_expansion.loot_tables.enable')
-                            ? ['Item' => 'Item', 'ItemRarity' => 'Item Rarity', 'Currency' => 'Currency', 'Pet' => 'Pet', 'LootTable' => 'Loot Table', 'ItemCategory' => 'Item Category', 'ItemCategoryRarity' => 'Item Category (Conditional)', 'Status' => 'Status Effect (Character Only)', 'None' => 'None']
+                            ? [
+                                'Item' => 'Item',
+                                'ItemRarity' => 'Item Rarity',
+                                'Currency' => 'Currency',
+                                'Pet' => 'Pet',
+                                'LootTable' => 'Loot Table',
+                                'ItemCategory' => 'Item Category',
+                                'ItemCategoryRarity' => 'Item Category (Conditional)',
+                                'Status' => 'Status Effect (Character Only)',
+                                'None' => 'None',
+                            ]
                             : ['Item' => 'Item', 'Currency' => 'Currency', 'Pet' => 'Pet', 'LootTable' => 'Loot Table', 'ItemCategory' => 'Item Category', 'Status' => 'Status Effect (Character Only)', 'None' => 'None'],
                         null,
                         ['class' => 'form-control reward-type', 'placeholder' => 'Select Reward Type'],
@@ -182,7 +194,7 @@
         {!! Form::select('rewardable_id[]', $statuses, null, ['class' => 'form-control status-select', 'placeholder' => 'Select Status Effect']) !!}
         {!! Form::select('rewardable_id[]', [1 => 'No reward given.'], null, ['class' => 'form-control none-select']) !!}
     </div>
-    
+
     <div id="sublist-row" class="hide">
         <div class="input-group mb-3">
             {!! Form::select('sublist_status_id[]', $statuses, null, ['class' => 'form-control', 'placeholder' => 'Select Status Effect', 'aria-label' => 'Status Effect']) !!}
@@ -192,7 +204,7 @@
                 <button class="btn btn-outline-danger remove-sublist" type="button" id="button-addon2">x</button>
             </div>
         </div>
-        <hr/>
+        <hr />
     </div>
 
     @if ($table->id)
@@ -344,6 +356,7 @@
                 e.preventDefault();
                 removeSublistRow($(this));
             })
+
             function addSublistRow() {
                 var $clone = $('#sublist-row').clone();
                 $('#sublistList').append($clone);
@@ -354,6 +367,7 @@
                 });
                 attachSublistListeners($clone);
             }
+
             function removeSublistRow($trigger) {
                 $trigger.parent().parent().parent().remove();
             }

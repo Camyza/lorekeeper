@@ -2,7 +2,17 @@
     <td>{!! Form::select(
         'rewardable_type[]',
         config('lorekeeper.extensions.item_entry_expansion.loot_tables.enable')
-            ? ['Item' => 'Item', 'Pet' => 'Pet', 'ItemRarity' => 'Item Rarity', 'Currency' => 'Currency', 'LootTable' => 'Loot Table', 'ItemCategory' => 'Item Category', 'ItemCategoryRarity' => 'Item Category (Conditional)', 'Status' => 'Status Effect (Character Only)', 'None' => 'None']
+            ? [
+                'Item' => 'Item',
+                'Pet' => 'Pet',
+                'ItemRarity' => 'Item Rarity',
+                'Currency' => 'Currency',
+                'LootTable' => 'Loot Table',
+                'ItemCategory' => 'Item Category',
+                'ItemCategoryRarity' => 'Item Category (Conditional)',
+                'Status' => 'Status Effect (Character Only)',
+                'None' => 'None',
+            ]
             : ['Item' => 'Item', 'Pet' => 'Pet', 'Currency' => 'Currency', 'LootTable' => 'Loot Table', 'ItemCategory' => 'Item Category', 'Status' => 'Status Effect (Character Only)', 'None' => 'None'],
         $loot->rewardable_type,
         ['class' => 'form-control reward-type', 'placeholder' => 'Select Reward Type'],

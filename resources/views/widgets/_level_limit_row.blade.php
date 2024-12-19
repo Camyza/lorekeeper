@@ -3,9 +3,7 @@
     // While it is not per se as tidy as defining these in the controller(s),
     // doing so this way enables better compatibility across disparate extensions
     $items = \App\Models\Item\Item::orderBy('name')->pluck('name', 'id');
-    $currencies = \App\Models\Currency\Currency::where('is_user_owned', 1)
-        ->orderBy('name')
-        ->pluck('name', 'id');
+    $currencies = \App\Models\Currency\Currency::where('is_user_owned', 1)->orderBy('name')->pluck('name', 'id');
 @endphp
 
 <div id="limitRowData" class="hide">

@@ -61,7 +61,10 @@
                 <td>
                     {!! Form::select(
                         'character_rewardable_type[]',
-                        ['Item' => 'Item', 'Currency' => 'Currency', 'Exp' => 'Exp', 'Points' => 'Stat Points'] + (isset($showLootTables) && $showLootTables ? ['LootTable' => 'Loot Table'] : []) + (isset($showElements) && $showElements ? ['Element' => 'Element'] : []) + (isset($showStatuses) && $showStatuses ? ['StatusEffect' => 'Status Effect'] : []),
+                        ['Item' => 'Item', 'Currency' => 'Currency', 'Exp' => 'Exp', 'Points' => 'Stat Points'] +
+                            (isset($showLootTables) && $showLootTables ? ['LootTable' => 'Loot Table'] : []) +
+                            (isset($showElements) && $showElements ? ['Element' => 'Element'] : []) +
+                            (isset($showStatuses) && $showStatuses ? ['StatusEffect' => 'Status Effect'] : []),
                         null,
                         [
                             'class' => 'form-control character-rewardable-type',

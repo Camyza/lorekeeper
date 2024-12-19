@@ -181,11 +181,7 @@
                         <div class="row justify-content-center text-center">
                             {{-- get one random pet --}}
                             @php
-                                $pets = $image->character
-                                    ->pets()
-                                    ->orderBy('sort', 'DESC')
-                                    ->limit(config('lorekeeper.pets.display_pet_count'))
-                                    ->get();
+                                $pets = $image->character->pets()->orderBy('sort', 'DESC')->limit(config('lorekeeper.pets.display_pet_count'))->get();
                             @endphp
                             @foreach ($pets as $pet)
                                 @if (config('lorekeeper.pets.pet_bonding_enabled'))
@@ -228,117 +224,117 @@
                     @endif
                 </div>
 
-                    @if (Auth::check() && Auth::user()->hasPower('manage_characters'))
-                        <div class="mt-3">
-                            <a href="#" class="btn btn-outline-info btn-sm edit-features" data-id="{{ $image->id }}"><i class="fas fa-cog"></i> Edit</a>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Image notes --}}
-                <div class="tab-pane fade" id="notes-{{ $image->id }}">
-                    @if ($image->parsed_description)
-                        <div class="parsed-text imagenoteseditingparse">{!! $image->parsed_description !!}</div>
-                    @else
-                        <div class="imagenoteseditingparse">No additional notes given.</div>
-                    @endif
-                    @if (Auth::check() && Auth::user()->hasPower('manage_characters'))
-                        <div class="mt-3">
-                            <a href="#" class="btn btn-outline-info btn-sm edit-notes" data-id="{{ $image->id }}"><i class="fas fa-cog"></i> Edit</a>
-                        </div>
-                    @endif
-                </div>
-
-                {{-- Image credits --}}
-                <div class="tab-pane fade" id="credits-{{ $image->id }}">
-
-                    <div class="row no-gutters mb-2">
-                        <div class="col-lg-4 col-4">
-                            <h5>Design</h5>
-                        </div>
-                        <div class="col-lg-8 col-8">
-                            @foreach ($image->designers as $designer)
-                                <div>{!! $designer->displayLink() !!}</div>
-                            @endforeach
-                        </div>
-                    </div>
-                    <div class="row no-gutters">
-                        <div class="col-lg-4 col-4">
-                            <h5>Art</h5>
-                        </div>
-                        <div class="col-lg-8 col-8">
-                            @foreach ($image->artists as $artist)
-                                <div>{!! $artist->displayLink() !!}</div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    @if (Auth::check() && Auth::user()->hasPower('manage_characters'))
-                        <div class="mt-3">
-                            <a href="#" class="btn btn-outline-info btn-sm edit-credits" data-id="{{ $image->id }}"><i class="fas fa-cog"></i> Edit</a>
-                        </div>
-                    @endif
-                </div>
-
-                @if (isset($showMention) && $showMention)
-                    {{-- Mention This tab --}}
-                    <div class="tab-pane fade" id="mention-{{ $image->id }}">
-                        In the rich text editor:
-                        <div class="alert alert-secondary">
-                            [character={{ $character->slug }}]
-                        </div>
-                        In a comment:
-                        <div class="alert alert-secondary">
-                            [{{ $character->fullName }}]({{ $character->url }})
-                        </div>
-                        <hr>
-                        <div class="my-2">
-                            <strong>For Thumbnails:</strong>
-                        </div>
-                        In the rich text editor:
-                        <div class="alert alert-secondary">
-                            [charthumb={{ $character->slug }}]
-                        </div>
-                        In a comment:
-                        <div class="alert alert-secondary">
-                            [![Thumbnail of {{ $character->fullName }}]({{ $character->image->thumbnailUrl }})]({{ $character->url }})
-                        </div>
-                    </div>
-                @endif
-
                 @if (Auth::check() && Auth::user()->hasPower('manage_characters'))
-                    <div class="tab-pane fade" id="settings-{{ $image->id }}">
-                        {!! Form::open(['url' => 'admin/character/image/' . $image->id . '/settings']) !!}
-                        <div class="form-group">
-                            {!! Form::checkbox('is_visible', 1, $image->is_visible, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
-                            {!! Form::label('is_visible', 'Is Viewable', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If this is turned off, the image will not be visible by anyone without the Manage Masterlist power.') !!}
-                        </div>
-                        <div class="form-group">
-                            {!! Form::checkbox('is_valid', 1, $image->is_valid, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
-                            {!! Form::label('is_valid', 'Is Valid', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If this is turned off, the image will still be visible, but displayed with a note that the image is not a valid reference.') !!}
-                        </div>
-                        @if (config('lorekeeper.settings.enable_character_content_warnings'))
-                            <div class="form-group">
-                                {!! Form::label('Content Warnings') !!} {!! add_help('These warnings will be displayed on the character\'s page. They are not required, but are recommended if the character contains sensitive content.') !!}
-                                {!! Form::text('content_warnings', null, ['class' => 'form-control', 'id' => 'warningList', 'data-init-value' => $image->editWarnings]) !!}
-                            </div>
-                        @endif
-                        <div class="text-right">
-                            {!! Form::submit('Edit', ['class' => 'btn btn-primary mb-3']) !!}
-                        </div>
-                        {!! Form::close() !!}
-
-                        <div class="text-right">
-                            @if ($character->character_image_id != $image->id)
-                                <a href="#" class="btn btn-outline-info btn-sm active-image" data-id="{{ $image->id }}">Set Active</a>
-                            @endif <a href="#" class="btn btn-outline-info btn-sm reupload-image" data-id="{{ $image->id }}">Reupload Image</a> <a href="#" class="btn btn-outline-danger btn-sm delete-image"
-                                data-id="{{ $image->id }}">Delete</a>
-                        </div>
+                    <div class="mt-3">
+                        <a href="#" class="btn btn-outline-info btn-sm edit-features" data-id="{{ $image->id }}"><i class="fas fa-cog"></i> Edit</a>
                     </div>
                 @endif
             </div>
+
+            {{-- Image notes --}}
+            <div class="tab-pane fade" id="notes-{{ $image->id }}">
+                @if ($image->parsed_description)
+                    <div class="parsed-text imagenoteseditingparse">{!! $image->parsed_description !!}</div>
+                @else
+                    <div class="imagenoteseditingparse">No additional notes given.</div>
+                @endif
+                @if (Auth::check() && Auth::user()->hasPower('manage_characters'))
+                    <div class="mt-3">
+                        <a href="#" class="btn btn-outline-info btn-sm edit-notes" data-id="{{ $image->id }}"><i class="fas fa-cog"></i> Edit</a>
+                    </div>
+                @endif
+            </div>
+
+            {{-- Image credits --}}
+            <div class="tab-pane fade" id="credits-{{ $image->id }}">
+
+                <div class="row no-gutters mb-2">
+                    <div class="col-lg-4 col-4">
+                        <h5>Design</h5>
+                    </div>
+                    <div class="col-lg-8 col-8">
+                        @foreach ($image->designers as $designer)
+                            <div>{!! $designer->displayLink() !!}</div>
+                        @endforeach
+                    </div>
+                </div>
+                <div class="row no-gutters">
+                    <div class="col-lg-4 col-4">
+                        <h5>Art</h5>
+                    </div>
+                    <div class="col-lg-8 col-8">
+                        @foreach ($image->artists as $artist)
+                            <div>{!! $artist->displayLink() !!}</div>
+                        @endforeach
+                    </div>
+                </div>
+
+                @if (Auth::check() && Auth::user()->hasPower('manage_characters'))
+                    <div class="mt-3">
+                        <a href="#" class="btn btn-outline-info btn-sm edit-credits" data-id="{{ $image->id }}"><i class="fas fa-cog"></i> Edit</a>
+                    </div>
+                @endif
+            </div>
+
+            @if (isset($showMention) && $showMention)
+                {{-- Mention This tab --}}
+                <div class="tab-pane fade" id="mention-{{ $image->id }}">
+                    In the rich text editor:
+                    <div class="alert alert-secondary">
+                        [character={{ $character->slug }}]
+                    </div>
+                    In a comment:
+                    <div class="alert alert-secondary">
+                        [{{ $character->fullName }}]({{ $character->url }})
+                    </div>
+                    <hr>
+                    <div class="my-2">
+                        <strong>For Thumbnails:</strong>
+                    </div>
+                    In the rich text editor:
+                    <div class="alert alert-secondary">
+                        [charthumb={{ $character->slug }}]
+                    </div>
+                    In a comment:
+                    <div class="alert alert-secondary">
+                        [![Thumbnail of {{ $character->fullName }}]({{ $character->image->thumbnailUrl }})]({{ $character->url }})
+                    </div>
+                </div>
+            @endif
+
+            @if (Auth::check() && Auth::user()->hasPower('manage_characters'))
+                <div class="tab-pane fade" id="settings-{{ $image->id }}">
+                    {!! Form::open(['url' => 'admin/character/image/' . $image->id . '/settings']) !!}
+                    <div class="form-group">
+                        {!! Form::checkbox('is_visible', 1, $image->is_visible, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
+                        {!! Form::label('is_visible', 'Is Viewable', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If this is turned off, the image will not be visible by anyone without the Manage Masterlist power.') !!}
+                    </div>
+                    <div class="form-group">
+                        {!! Form::checkbox('is_valid', 1, $image->is_valid, ['class' => 'form-check-input', 'data-toggle' => 'toggle']) !!}
+                        {!! Form::label('is_valid', 'Is Valid', ['class' => 'form-check-label ml-3']) !!} {!! add_help('If this is turned off, the image will still be visible, but displayed with a note that the image is not a valid reference.') !!}
+                    </div>
+                    @if (config('lorekeeper.settings.enable_character_content_warnings'))
+                        <div class="form-group">
+                            {!! Form::label('Content Warnings') !!} {!! add_help('These warnings will be displayed on the character\'s page. They are not required, but are recommended if the character contains sensitive content.') !!}
+                            {!! Form::text('content_warnings', null, ['class' => 'form-control', 'id' => 'warningList', 'data-init-value' => $image->editWarnings]) !!}
+                        </div>
+                    @endif
+                    <div class="text-right">
+                        {!! Form::submit('Edit', ['class' => 'btn btn-primary mb-3']) !!}
+                    </div>
+                    {!! Form::close() !!}
+
+                    <div class="text-right">
+                        @if ($character->character_image_id != $image->id)
+                            <a href="#" class="btn btn-outline-info btn-sm active-image" data-id="{{ $image->id }}">Set Active</a>
+                        @endif <a href="#" class="btn btn-outline-info btn-sm reupload-image" data-id="{{ $image->id }}">Reupload Image</a> <a href="#" class="btn btn-outline-danger btn-sm delete-image"
+                            data-id="{{ $image->id }}">Delete</a>
+                    </div>
+                </div>
+            @endif
         </div>
     </div>
+</div>
 </div>
 
 @include('widgets._character_warning_js')

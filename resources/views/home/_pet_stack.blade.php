@@ -121,12 +121,7 @@
                         </div>
                         <div class="form-group">
                             @php
-                                $variants =
-                                    ['0' => 'Default'] +
-                                    $stack->pet
-                                        ->variants()
-                                        ->pluck('variant_name', 'id')
-                                        ->toArray();
+                                $variants = ['0' => 'Default'] + $stack->pet->variants()->pluck('variant_name', 'id')->toArray();
                             @endphp
                             {!! Form::select('variant_id', $variants, $stack->variant_id, ['class' => 'form-control']) !!}
                         </div>
@@ -149,12 +144,7 @@
                         </p>
                         <div class="form-group">
                             @php
-                                $variants =
-                                    ['0' => 'Default'] +
-                                    $stack->pet
-                                        ->variants()
-                                        ->pluck('variant_name', 'id')
-                                        ->toArray();
+                                $variants = ['0' => 'Default'] + $stack->pet->variants()->pluck('variant_name', 'id')->toArray();
                             @endphp
                             {!! Form::select('variant_id', $variants, $stack->variant_id, ['class' => 'form-control mt-2']) !!}
                         </div>
@@ -175,12 +165,7 @@
                         </p>
                         <div class="form-group">
                             @php
-                                $evolutions =
-                                    ['0' => 'Default'] +
-                                    $stack->pet
-                                        ->evolutions()
-                                        ->pluck('evolution_name', 'id')
-                                        ->toArray();
+                                $evolutions = ['0' => 'Default'] + $stack->pet->evolutions()->pluck('evolution_name', 'id')->toArray();
                             @endphp
                             {!! Form::select('evolution_id', $evolutions, $stack->evolution_id, ['class' => 'form-control mt-2']) !!}
                         </div>

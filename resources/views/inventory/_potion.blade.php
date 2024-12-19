@@ -16,12 +16,7 @@
         {{-- select character --}}
         <div class="form-group">
             {!! Form::label('Character') !!}
-            {!! Form::select(
-                'character_potion_id',
-                $stack->first()->user->characters()->get()->pluck('fullName', 'id')->toArray(),
-                null,
-                ['class' => 'form-control', 'placeholder' => 'Select a Character'],
-            ) !!}
+            {!! Form::select('character_potion_id', $stack->first()->user->characters()->get()->pluck('fullName', 'id')->toArray(), null, ['class' => 'form-control', 'placeholder' => 'Select a Character']) !!}
         </div>
         <div class="text-right">
             {!! Form::button('Use', ['class' => 'btn btn-primary', 'name' => 'action', 'value' => 'act', 'type' => 'submit']) !!}

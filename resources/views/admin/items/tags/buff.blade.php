@@ -11,4 +11,4 @@
     <div class="input-group-append">
         <span class="input-group-text">Quantity</span>
     </div>
-  </div>
+</div>
