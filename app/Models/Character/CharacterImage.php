@@ -179,6 +179,15 @@ class CharacterImage extends Model {
     **********************************************************************************************/
 
     /**
+     * Displays the character's name, linked to their character page.
+     *
+     * @return string
+     */
+    public function getDisplayNameAttribute() {
+        return '<a href="'.$this->character->url.'" class="display-character">'.$this->character->fullName.'</a>';
+    }
+
+    /**
      * Gets the file directory containing the model's image.
      *
      * @return string

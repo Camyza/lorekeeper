@@ -51,6 +51,10 @@ return [
         'name'        => 'Manage Reports',
         'description' => 'Allow rank to view the reports queue.',
     ],
+    'edit_claymores' => [
+        'name'        => 'Edit Claymores & Companions',
+        'description' => 'Allow rank to edit claymore & companions data.',
+    ],
     'maintenance_access' => [
         'name'        => 'Has Maintenance Access',
         'description' => 'Allow rank to browse the site normally during maintenance mode.',

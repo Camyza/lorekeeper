@@ -1,0 +1,155 @@
+<?php
+
+namespace App\Models\User;
+
+use App\Models\Character\Character;
+use App\Models\Claymore\Gear;
+use App\Models\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+class UserGear extends Model {
+    use SoftDeletes;
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    protected $fillable = [
+        'data', 'gear_id', 'user_id', 'attached_at', 'has_image',
+    ];
+
+    /**
+     * Dates on the model to convert to Carbon instances.
+     *
+     * @var array
+     */
+    protected $casts = [
+        'attached_at' => 'datetime',
+    ];
+
+    /**
+     * The table associated with the model.
+     *
+     * @var string
+     */
+    protected $table = 'user_gears';
+
+    /**
+     * Whether the model contains timestamps to be saved and updated.
+     *
+     * @var string
+     */
+    public $timestamps = true;
+
+    /**********************************************************************************************
+
+        RELATIONS
+
+    **********************************************************************************************/
+
+    /**
+     * Get the user who owns the stack.
+     */
+    public function user() {
+        return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the gear associated with this gear stack.
+     */
+    public function gear() {
+        return $this->belongsTo(Gear::class);
+    }
+
+    /**
+     * Get the gear associated with this gear stack, using an alias.
+     */
+    public function equipment() {
+        return $this->belongsTo(Gear::class, 'gear_id');
+    }
+
+    /**
+     * Get the character that this stack is currently attached to.
+     */
+    public function character() {
+        return $this->belongsTo(Character::class, 'character_id');
+    }
+
+    /**********************************************************************************************
+
+        ACCESSORS
+
+    **********************************************************************************************/
+
+    /**
+     * Get the data attribute as an associative array.
+     *
+     * @return array
+     */
+    public function getDataAttribute() {
+        return json_decode($this->attributes['data'], true);
+    }
+
+    /**
+     * Checks if the stack is transferrable.
+     *
+     * @return array
+     */
+    public function getIsTransferrableAttribute() {
+        if (!isset($this->data['disallow_transfer']) && $this->gear->allow_transfer) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Gets the stack's asset type for asset management.
+     *
+     * @return string
+     */
+    public function getAssetTypeAttribute() {
+        return 'user_gears';
+    }
+
+    /**
+     * Gets the file directory containing the model's image.
+     *
+     * @return string
+     */
+    public function getImageDirectoryAttribute() {
+        return 'images/data/user-gears';
+    }
+
+    /**
+     * Gets the file name of the model's image.
+     *
+     * @return string
+     */
+    public function getImageFileNameAttribute() {
+        return $this->id.'-image.png';
+    }
+
+    /**
+     * Gets the path to the file directory containing the model's image.
+     *
+     * @return string
+     */
+    public function getImagePathAttribute() {
+        return public_path($this->imageDirectory);
+    }
+
+    /**
+     * Gets the URL of the model's image.
+     *
+     * @return string
+     */
+    public function getImageUrlAttribute() {
+        if (!$this->has_image) {
+            return $this->gear->imageUrl;
+        }
+
+        return asset($this->imageDirectory.'/'.$this->imageFileName);
+    }
+}

@@ -22,11 +22,34 @@
             <tbody>
                 @foreach ($prompt->rewards as $reward)
                     <tr>
-                        <td>{!! $reward->reward->displayName !!}</td>
+                        <td>{!! $reward->reward ? $reward->reward->displayName : $reward->rewardable_type !!}</td>
                         <td>{{ $reward->quantity }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
+        <hr>
+        <h4>Default Skill Rewards</h4>
+        <table class="table table-sm mb-0">
+            <thead>
+                <tr>
+                    <th width="70%">Skill</th>
+                    <th width="30%">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($prompt->skills as $skill)
+                    <tr>
+                        <td>{!! $skill->skill->displayName !!}</td>
+                        <td>{{ $skill->quantity }}</td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
     </div>
+    @if (count(getLimits($prompt)))
+        <div class="card-footer">
+            @include('widgets._limits', ['object' => $prompt])
+        </div>
+    @endif
 </div>

@@ -144,6 +144,21 @@ class Notification extends Model {
     public const REPORT_CLOSED = 221;
     public const COMMENT_MADE = 239;
     public const COMMENT_REPLY = 240;
+    public const PET_REMOVAL = 241;
+    public const PET_TRANSFER = 242;
+    public const FORCED_PET_TRANSFER = 243;
+    public const PET_GRANT = 244;
+    public const EXP_GRANT = 245;
+    public const STAT_GRANT = 246;
+    public const GEAR_GRANT = 250;
+    public const WEAPON_GRANT = 251;
+    public const WEAPON_REMOVAL = 252;
+    public const WEAPON_TRANSFER = 253;
+    public const FORCED_WEAPON_TRANSFER = 254;
+    public const GEAR_REMOVAL = 255;
+    public const GEAR_TRANSFER = 256;
+    public const FORCED_GEAR_TRANSFER = 257;
+    public const SKILL_GRANT = 258;
     public const CHARACTER_ITEM_GRANT = 501;
     public const CHARACTER_ITEM_REMOVAL = 502;
     public const GALLERY_SUBMISSION_COLLABORATOR = 505;
@@ -157,4 +172,6 @@ class Notification extends Model {
     public const GALLERY_SUBMISSION_STAFF_COMMENTS = 513;
     public const GALLERY_SUBMISSION_EDITED = 514;
     public const GALLERY_SUBMISSION_PARTICIPANT = 515;
+    public const CHARACTER_STATUS_GRANT = 521;
+    public const CHARACTER_STATUS_REMOVAL = 522;
 }

@@ -6,14 +6,25 @@ use App\Http\Controllers\Controller;
 use App\Models\Character\Character;
 use App\Models\Character\CharacterDesignUpdate;
 use App\Models\Character\CharacterItem;
+use App\Models\Claymore\Gear;
+use App\Models\Claymore\Weapon;
 use App\Models\Currency\Currency;
 use App\Models\Item\Item;
+use App\Models\Pet\Pet;
+use App\Models\Skill\Skill;
+use App\Models\Stat\Stat;
 use App\Models\Submission\Submission;
 use App\Models\Trade;
 use App\Models\User\User;
 use App\Models\User\UserItem;
+use App\Services\Claymore\GearManager;
+use App\Services\Claymore\WeaponManager;
 use App\Services\CurrencyManager;
 use App\Services\InventoryManager;
+use App\Services\PetManager;
+use App\Services\SkillManager;
+use App\Services\Stat\ExperienceManager;
+use App\Services\Stat\StatManager;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -83,6 +94,234 @@ class GrantController extends Controller {
     }
 
     /**
+     * Grants or removes exp (show).
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getExp() {
+        $options = [
+            'Users' => User::orderBy('id')->pluck('name', 'id')->mapWithKeys(function ($item, $key) {
+                return ['user-'.$key => $item];
+            })->toArray(),
+            'Characters' => Character::orderBy('name')->get()->pluck('fullName', 'id')->mapWithKeys(function ($item, $key) {
+                return ['character-'.$key => $item];
+            })->toArray(),
+        ];
+
+        return view('admin.grants.exp', [
+            'options' => $options,
+        ]);
+    }
+
+    /**
+     * Grants or removes exp.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postExp(Request $request, ExperienceManager $service) {
+        $data = $request->only(['names', 'quantity', 'data']);
+        if ($service->grantExp($data, Auth::user())) {
+            flash('EXP granted successfully.')->success();
+        } else {
+            foreach ($service->errors()->getMessages()['error'] as $error) {
+                flash($error)->error();
+            }
+        }
+
+        return redirect()->back();
+    }
+
+    /**
+     * Grants or removes stat points.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getPoints() {
+        $options = [
+            'Users' => User::orderBy('id')->pluck('name', 'id')->mapWithKeys(function ($item, $key) {
+                return ['user-'.$key => $item];
+            })->toArray(),
+            'Characters' => Character::orderBy('name')->get()->pluck('fullName', 'id')->mapWithKeys(function ($item, $key) {
+                return ['character-'.$key => $item];
+            })->toArray(),
+        ];
+
+        return view('admin.grants.points', [
+            'stats'   => ['none' => 'General Point'] + Stat::orderBy('name')->pluck('name', 'id')->toArray(),
+            'options' => $options,
+        ]);
+    }
+
+    /**
+     * Grants or removes points.
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postPoints(Request $request, StatManager $service) {
+        $data = $request->only(['names', 'stat_ids', 'quantity', 'data']);
+        if ($service->grantStats($data, Auth::user())) {
+            flash('Stat points granted successfully.')->success();
+        } else {
+            foreach ($service->errors()->getMessages()['error'] as $error) {
+                flash($error)->error();
+            }
+        }
+
+        return redirect()->back();
+    }
+
+    /**
+     * Show the pet grant page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getPets() {
+        return view('admin.grants.pets', [
+            'users' => User::orderBy('id')->pluck('name', 'id'),
+            'pets'  => Pet::orderBy('name')->pluck('name', 'id'),
+        ]);
+    }
+
+    /**
+     * Gets all variants of a pet.
+     *
+     * @param mixed $id
+     */
+    public function getPetVariants($id) {
+        $pet = Pet::find($id);
+
+        return $pet->variants->pluck('variant_name', 'id')->toArray();
+    }
+
+    /**
+     * Gets all evlutions of a pet.
+     *
+     * @param mixed $id
+     */
+    public function getPetEvolutions($id) {
+        $pet = Pet::find($id);
+
+        return $pet->evolutions->pluck('evolution_name', 'id')->toArray();
+    }
+
+    /**
+     * Grants or removes pets from multiple users.
+     *
+     * @param App\Services\InvenntoryManager $service
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postPets(Request $request, PetManager $service) {
+        $data = $request->only(['names', 'pet_ids', 'quantities', 'data', 'disallow_transfer', 'notes', 'variant', 'evolution']);
+        if ($service->grantPets($data, Auth::user())) {
+            flash('Pets granted successfully.')->success();
+        } else {
+            foreach ($service->errors()->getMessages()['error'] as $error) {
+                flash($error)->error();
+            }
+        }
+
+        return redirect()->back();
+    }
+
+    /**
+     * Show the pet grant page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getGear() {
+        return view('admin.grants.gear', [
+            'users' => User::orderBy('id')->pluck('name', 'id'),
+            'gears' => Gear::orderBy('name')->pluck('name', 'id'),
+        ]);
+    }
+
+    /**
+     * Grants or removes gear from multiple users.
+     *
+     * @param App\Services\InvenntoryManager $service
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postGear(Request $request, GearManager $service) {
+        $data = $request->only(['names', 'gear_ids', 'quantities', 'data', 'disallow_transfer', 'notes']);
+        if ($service->grantGears($data, Auth::user())) {
+            flash('Gear granted successfully.')->success();
+        } else {
+            foreach ($service->errors()->getMessages()['error'] as $error) {
+                flash($error)->error();
+            }
+        }
+
+        return redirect()->back();
+    }
+
+    /**
+     * Show the pet grant page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getWeapons() {
+        return view('admin.grants.weapons', [
+            'users'   => User::orderBy('id')->pluck('name', 'id'),
+            'weapons' => Weapon::orderBy('name')->pluck('name', 'id'),
+        ]);
+    }
+
+    /**
+     * Grants or removes gear from multiple users.
+     *
+     * @param App\Services\InvenntoryManager $service
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postWeapons(Request $request, WeaponManager $service) {
+        $data = $request->only(['names', 'weapon_ids', 'quantities', 'data', 'disallow_transfer', 'notes']);
+        if ($service->grantWeapons($data, Auth::user())) {
+            flash('Weapons granted successfully.')->success();
+        } else {
+            foreach ($service->errors()->getMessages()['error'] as $error) {
+                flash($error)->error();
+            }
+        }
+
+        return redirect()->back();
+    }
+
+    /**
+     * Show the skill grant page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getSkills() {
+        return view('admin.grants.skills', [
+            'users'      => User::orderBy('id')->pluck('name', 'id'),
+            'characters' => Character::orderBy('name')->get()->pluck('fullName', 'id'),
+            'skills'     => Skill::orderBy('name')->pluck('name', 'id'),
+        ]);
+    }
+
+    /**
+     * Grants or removes skill levels to characters.
+     *
+     * @param App\Services\SkillManager $service
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function postSkills(Request $request, SkillManager $service) {
+        $data = $request->only(['character_ids', 'skill_ids', 'quantities', 'data']);
+        if ($service->grantSkills($data, Auth::user())) {
+            flash('Skills granted successfully.')->success();
+        } else {
+            foreach ($service->errors()->getMessages()['error'] as $error) {
+                flash($error)->error();
+            }
+        }
+
+        return redirect()->back();
+    }
+
+    /*
      * Show the item search page.
      *
      * @return \Illuminate\Contracts\Support\Renderable

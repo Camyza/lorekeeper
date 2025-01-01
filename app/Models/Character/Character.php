@@ -8,13 +8,24 @@ use App\Models\Currency\CurrencyLog;
 use App\Models\Gallery\GalleryCharacter;
 use App\Models\Item\Item;
 use App\Models\Item\ItemLog;
+use App\Models\Level\LevelLog;
 use App\Models\Model;
 use App\Models\Rarity;
+use App\Models\Stat\CountLog;
+use App\Models\Stat\ExpLog;
+use App\Models\Stat\Stat;
+use App\Models\Stat\StatLog;
+use App\Models\Stat\StatTransferLog;
+use App\Models\Status\StatusEffect;
+use App\Models\Status\StatusEffectLog;
 use App\Models\Submission\Submission;
 use App\Models\Submission\SubmissionCharacter;
 use App\Models\Trade;
 use App\Models\User\User;
 use App\Models\User\UserCharacterLog;
+use App\Models\User\UserGear;
+use App\Models\User\UserPet;
+use App\Models\User\UserWeapon;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -32,7 +43,7 @@ class Character extends Model {
         'is_sellable', 'is_tradeable', 'is_giftable',
         'sale_value', 'transferrable_at', 'is_visible',
         'is_gift_art_allowed', 'is_gift_writing_allowed', 'is_trading', 'sort',
-        'is_myo_slot', 'name', 'trade_id', 'owner_url',
+        'is_myo_slot', 'name', 'trade_id', 'owner_url', 'class_id',
     ];
 
     /**
@@ -159,6 +170,20 @@ class Character extends Model {
     }
 
     /**
+     * Get character level.
+     */
+    public function level() {
+        return $this->hasOne(CharacterLevel::class, 'character_id');
+    }
+
+    /**
+     * Get characters stats.
+     */
+    public function stats() {
+        return $this->hasMany(CharacterStat::class, 'character_id');
+    }
+
+    /**
      * Get the character's active design update.
      */
     public function designUpdate() {
@@ -180,6 +205,35 @@ class Character extends Model {
     }
 
     /**
+     * Get the character's associated pets.
+     */
+    public function pets() {
+        return $this->hasMany(UserPet::class, 'character_id');
+    }
+
+    /**
+     * Get the character's associated gear.
+     */
+    public function gear() {
+        return $this->hasMany(UserGear::class, 'character_id');
+    }
+
+    /**
+     * Get the character's associated weapons.
+     */
+    public function weapons() {
+        return $this->hasMany(UserWeapon::class, 'character_id');
+    }
+
+    /**
+     * Gets both the character's gear and weapons.
+     * Technically not a relation.
+     */
+    public function equipment() {
+        return $this->hasMany(UserGear::class, 'character_id')->get()->concat($this->hasMany(UserWeapon::class, 'character_id')->get());
+    }
+
+    /**
      * Get the character's associated gallery submissions.
      */
     public function gallerySubmissions() {
@@ -191,6 +245,20 @@ class Character extends Model {
      */
     public function items() {
         return $this->belongsToMany(Item::class, 'character_items')->withPivot('count', 'data', 'updated_at', 'id')->whereNull('character_items.deleted_at');
+    }
+
+    /**
+     * Get the character's class.
+     */
+    public function class() {
+        return $this->belongsTo(CharacterClass::class, 'class_id');
+    }
+
+    /**
+     * Get the character's skills.
+     */
+    public function skills() {
+        return $this->hasMany(CharacterSkill::class, 'character_id');
     }
 
     /**********************************************************************************************
@@ -451,12 +519,138 @@ class Character extends Model {
     }
 
     /**
+     * Get the character's exp logs.
+     *
+     * @param int $limit
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection
+     */
+    public function getExpLogs($limit = 10) {
+        $character = $this;
+        $query = ExpLog::where(function ($query) use ($character) {
+            $query->with('sender')->where('sender_type', 'Character')->where('sender_id', $character->id)->whereNotIn('log_type', ['Staff Grant', 'Prompt Rewards', 'Claim Rewards']);
+        })->orWhere(function ($query) use ($character) {
+            $query->with('recipient')->where('recipient_type', 'Character')->where('recipient_id', $character->id)->where('log_type', '!=', 'Staff Removal');
+        })->orderBy('id', 'DESC');
+        if ($limit) {
+            return $query->take($limit)->get();
+        } else {
+            return $query->paginate(30);
+        }
+    }
+
+    /**
+     * Get the character's stat logs.
+     *
+     * @param int $limit
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection
+     */
+    public function getStatTransferLogs($limit = 10) {
+        $character = $this;
+        $query = StatTransferLog::where(function ($query) use ($character) {
+            $query->with('sender')->where('sender_type', 'Character')->where('sender_id', $character->id);
+        })->orWhere(function ($query) use ($character) {
+            $query->with('recipient')->where('recipient_type', 'Character')->where('recipient_id', $character->id);
+        })->orderBy('id', 'DESC');
+
+        if ($limit) {
+            return $query->take($limit)->get();
+        } else {
+            return $query->paginate(30);
+        }
+    }
+
+    /**
+     * Get the character's stat logs.
+     *
+     * @param int $limit
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection
+     */
+    public function getStatLevelLogs($limit = 10) {
+        $character = $this;
+        $query = StatLog::where('leveller_type', 'Character')->where('recipient_id', $character->id)->orderBy('id', 'DESC');
+
+        if ($limit) {
+            return $query->take($limit)->get();
+        } else {
+            return $query->paginate(30);
+        }
+    }
+
+    /**
+     * Get the character's level logs.
+     *
+     * @param int $limit
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection
+     */
+    public function getLevelLogs($limit = 10) {
+        $character = $this;
+        $query = LevelLog::where(function ($query) use ($character) {
+            $query->with('recipient')->where('leveller_type', 'Character')->where('recipient_id', $character->id);
+        })->orderBy('id', 'DESC');
+        if ($limit) {
+            return $query->take($limit)->get();
+        } else {
+            return $query->paginate(30);
+        }
+    }
+
+    /**
+     * Get the character's stat count logs.
+     *
+     * @param int $limit
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection
+     */
+    public function getCountLogs($limit = 10) {
+        $character = $this;
+        $query = CountLog::where(function ($query) use ($character) {
+            $query->with('sender')->where('sender_type', 'Character')->where('sender_id', $character->id)->whereNotIn('log_type', ['Staff Grant', 'Prompt Rewards', 'Claim Rewards']);
+        })->orWhere(function ($query) use ($character) {
+            $query->where('character_id', $character->id)->where('log_type', '!=', 'Staff Removal');
+        })->orderBy('id', 'DESC');
+        if ($limit) {
+            return $query->take($limit)->get();
+        } else {
+            return $query->paginate(30);
+        }
+    }
+
+    /**
      * Get the character's held currencies as an array for select inputs.
      *
      * @return array
      */
     public function getCurrencySelect() {
         return CharacterCurrency::where('character_id', $this->id)->leftJoin('currencies', 'character_currencies.currency_id', '=', 'currencies.id')->orderBy('currencies.sort_character', 'DESC')->get()->pluck('name_with_quantity', 'currency_id')->toArray();
+    }
+
+    /**
+     * Get the character's current status effects.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    public function getStatusEffects() {
+        // Get a list of status effects that need to be displayed
+
+        $owned = CharacterStatusEffect::where('character_id', $this->id)->pluck('quantity', 'status_effect_id')->toArray();
+
+        $statuses = StatusEffect::query();
+
+        $statuses = $statuses->orderBy('name', 'DESC')->get();
+
+        foreach ($statuses as $status) {
+            $status->quantity = $owned[$status->id] ?? 0;
+        }
+
+        $statuses = $statuses->filter(function ($status) {
+            return $status->quantity > 0;
+        });
+
+        return $statuses;
     }
 
     /**
@@ -470,6 +664,27 @@ class Character extends Model {
         $character = $this;
         $query = CurrencyLog::with('currency')->where(function ($query) use ($character) {
             $query->with('sender.rank')->where('sender_type', 'Character')->where('sender_id', $character->id)->where('log_type', '!=', 'Staff Grant');
+        })->orWhere(function ($query) use ($character) {
+            $query->with('recipient.rank')->where('recipient_type', 'Character')->where('recipient_id', $character->id)->where('log_type', '!=', 'Staff Removal');
+        })->orderBy('id', 'DESC');
+        if ($limit) {
+            return $query->take($limit)->get();
+        } else {
+            return $query->paginate(30);
+        }
+    }
+
+    /**
+     * Get the character's status effect logs.
+     *
+     * @param int $limit
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator|\Illuminate\Support\Collection
+     */
+    public function getStatusEffectLogs($limit = 10) {
+        $character = $this;
+        $query = StatusEffectLog::with('status')->where(function ($query) use ($character) {
+            $query->with('recipient.rank')->where('sender_type', 'Character')->where('sender_id', $character->id)->where('log_type', '!=', 'Staff Grant');
         })->orWhere(function ($query) use ($character) {
             $query->with('recipient.rank')->where('recipient_type', 'Character')->where('recipient_id', $character->id)->where('log_type', '!=', 'Staff Removal');
         })->orderBy('id', 'DESC');
@@ -520,7 +735,18 @@ class Character extends Model {
      * @return \Illuminate\Pagination\LengthAwarePaginator
      */
     public function getCharacterLogs() {
-        $query = CharacterLog::with('sender.rank')->where('character_id', $this->id)->orderBy('id', 'DESC');
+        $query = CharacterLog::with('sender.rank')->where('character_id', $this->id)->where('log_type', '!=', 'Skill Awarded')->orderBy('id', 'DESC');
+
+        return $query->paginate(30);
+    }
+
+    /**
+     * Get the character's update logs.
+     *
+     * @return \Illuminate\Pagination\LengthAwarePaginator
+     */
+    public function getCharacterSkillLogs() {
+        $query = CharacterLog::with('sender.rank')->where('character_id', $this->id)->where('log_type', 'Skill Awarded')->orderBy('id', 'DESC');
 
         return $query->paginate(30);
     }
@@ -589,5 +815,118 @@ class Character extends Model {
                 ]);
             }
         }
+    }
+
+    /**
+     * Gets the characters stats, but only those that apply to the character's species / subtype.
+     */
+    public function getStatsAttribute() {
+        $character = $this;
+        $stats = Stat::whereHas('limits', function ($query) use ($character) {
+            $query->where('species_id', $character->image->species_id)->where('is_subtype', 0);
+        })->orWhereHas('limits', function ($query) use ($character) {
+            $query->where('species_id', $character->image->subtype_id)->where('is_subtype', 1);
+        })->orWhereDoesntHave('limits')->orderBy('name', 'ASC')->get();
+
+        return $this->stats()->whereIn('stat_id', $stats->pluck('id')->toArray())->get();
+    }
+
+    /**
+     * Propagates stats.
+     */
+    public function propagateStats() {
+        // get all stats where the species limit is the species of the character
+        $character = $this;
+
+        // technically, we can propagate all stats, since the above function will only return stats that apply to the character's species
+        $stats = Stat::whereHas('limits', function ($query) use ($character) {
+            $query->where('species_id', $character->image->species_id)->where('is_subtype', 0);
+        })->orWhereHas('limits', function ($query) use ($character) {
+            $query->where('species_id', $character->image->subtype_id)->where('is_subtype', 1);
+        })->orWhereDoesntHave('limits')->get();
+
+        // prevents running it when unneeded. if there's an error idk lol
+        if ($this->stats()->pluck('stat_id')->toArray() != $stats->pluck('id')->toArray()) {
+            // we need to do this each time in case a new stat is made. It slows it down but -\(-v-)/-
+            foreach ($stats as $stat) {
+                if (!$this->stats->where('stat_id', $stat->id)->first()) {
+                    // check if stat has a base value that is for this character's species or subtype
+                    // subtype takes precedence over species, so check for subtype first
+                    $base = null;
+                    $base = $stat->hasBaseValue('subtype', $this->image->subtype_id);
+                    if (!$base) {
+                        $base = $stat->hasBaseValue('species', $this->image->species_id);
+                    }
+
+                    $this->stats()->create([
+                        'character_id'  => $this->id,
+                        'stat_id'       => $stat->id,
+                        'count'         => $base ? $base : $stat->base,
+                        'current_count' => $base ? $base : $stat->base,
+                    ]);
+                }
+            }
+
+            // Refresh the model instance so that newly created stats are immediately available
+            $this->refresh();
+        }
+    }
+
+    /**
+     * Gets total stat count including bonuses etc., without acknowledging current count.
+     *
+     * @param mixed $stat_id
+     */
+    public function totalStatCount($stat_id) {
+        $stat = $this->stats->where('stat_id', $stat_id)->first();
+        $total = $stat->count;
+        $total += $this->bonusStatCount($stat_id);
+
+        return $total;
+    }
+
+    /**
+     * gets the total stat count with current count acknowledgment.
+     *
+     * @param mixed $stat_id
+     */
+    public function currentStatCount($stat_id) {
+        $stat = $this->stats()->where('stat_id', $stat_id)->first();
+
+        if ($stat->current_count < 1) {
+            return 0; // prevents, for example, hp bonuses from being applied to a character with 0 hp
+        }
+
+        $total = $stat->current_count ? $stat->current_count : $stat->count;
+        $total += $this->bonusStatCount($stat_id);
+
+        return $total;
+    }
+
+    /**
+     * gets bonus stat count.
+     *
+     * @param mixed $stat_id
+     */
+    public function bonusStatCount($stat_id) {
+        $total = 0;
+        foreach ($this->equipment() as $equipment) {
+            if ($equipment->equipment->stats()->where('stat_id', $stat_id)->first()) {
+                $total += $equipment->equipment->stats()->where('stat_id', $stat_id)->first()->count;
+            }
+        }
+
+        return $total;
+    }
+
+    /**
+     * Gets the equipment that affects a stat.
+     *
+     * @param mixed $stat_id
+     */
+    public function getStatEquipment($stat_id) {
+        return $this->equipment()->filter(function ($equipment) use ($stat_id) {
+            return $equipment->equipment->stats()->where('stat_id', $stat_id)->first();
+        });
     }
 }

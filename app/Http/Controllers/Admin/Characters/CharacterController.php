@@ -12,6 +12,7 @@ use App\Models\Feature\Feature;
 use App\Models\Rarity;
 use App\Models\Species\Species;
 use App\Models\Species\Subtype;
+use App\Models\Stat\Stat;
 use App\Models\Trade;
 use App\Models\User\User;
 use App\Models\User\UserItem;
@@ -55,6 +56,7 @@ class CharacterController extends Controller {
             'subtypes'    => [],
             'features'    => Feature::getDropdownItems(1),
             'isMyo'       => false,
+            'stats'       => Stat::orderBy('name')->get(),
         ]);
     }
 
@@ -71,6 +73,7 @@ class CharacterController extends Controller {
             'subtypes'    => [],
             'features'    => Feature::getDropdownItems(1),
             'isMyo'       => true,
+            'stats'       => Stat::orderBy('name')->get(),
         ]);
     }
 
@@ -85,6 +88,28 @@ class CharacterController extends Controller {
         return view('admin.masterlist._create_character_subtype', [
             'subtypes' => Subtype::where('species_id', '=', $species)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
             'isMyo'    => $request->input('myo'),
+        ]);
+    }
+
+    /**
+     * Gets the stats that are available for a specific species/subtype.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getCreateCharacterMyoStats(Request $request) {
+        $species = $request->input('species') ?? null;
+        $subtype = $request->input('subtype') ?? null;
+
+        $stats = Stat::whereHas('limits', function ($query) use ($species) {
+            $query->where('species_id', $species)->where('is_subtype', 0);
+        })->orWhereHas('limits', function ($query) use ($subtype) {
+            $query->where('species_id', $subtype)->where('is_subtype', 1);
+        })->orWhereDoesntHave('limits')->orderBy('name', 'ASC')->get();
+
+        return view('admin.masterlist._create_character_stats', [
+            'stats'      => $stats,
+            'species_id' => $species,
+            'subtype_id' => $subtype,
         ]);
     }
 
@@ -105,7 +130,7 @@ class CharacterController extends Controller {
             'designer_id', 'designer_url',
             'artist_id', 'artist_url',
             'species_id', 'subtype_ids', 'rarity_id', 'feature_id', 'feature_data',
-            'image', 'thumbnail', 'image_description', 'content_warnings',
+            'image', 'thumbnail', 'image_description', 'content_warnings', 'stats',
         ]);
         if ($character = $service->createCharacter($data, Auth::user())) {
             flash('Character created successfully.')->success();
@@ -137,7 +162,7 @@ class CharacterController extends Controller {
             'designer_id', 'designer_url',
             'artist_id', 'artist_url',
             'species_id', 'subtype_ids', 'rarity_id', 'feature_id', 'feature_data',
-            'image', 'thumbnail',
+            'image', 'thumbnail', 'stats',
         ]);
         if ($character = $service->createCharacter($data, Auth::user(), true)) {
             flash('MYO slot created successfully.')->success();

@@ -6,6 +6,7 @@
         ->pluck('fullName', 'slug')
         ->toArray();
     $tables = \App\Models\Loot\LootTable::orderBy('name')->pluck('name', 'id');
+    $elements = \App\Models\Element\Element::orderBy('name')->pluck('name', 'id');
 @endphp
 
 <div class="submission-character mb-3 card">
@@ -25,6 +26,12 @@
                     {!! Form::label('slug[]', 'Character Code') !!}
                     {!! Form::select('slug[]', $characters, $character->character ? $character->character->slug : $character->slug, ['class' => 'form-control character-code', 'placeholder' => 'Select Character']) !!}
                 </div>
+                @if (isset($submission))
+                    <div class="form-group col-6">
+                        {!! Form::label('character_is_focus[' . ($character->character ? $character->character->id : $character->id) . ']', 'Focus Character?', ['class' => 'mr-2']) !!}
+                        {!! Form::select('character_is_focus[' . ($character->character ? $character->character->id : $character->id) . ']', [0 => 'No', 1 => 'Yes'], $character->is_focus, ['class' => 'form-control character-is-focus']) !!}
+                    </div>
+                @endif
                 <div class="character-rewards">
                     <h4>Character Rewards</h4>
                     <table class="table table-sm">
@@ -44,10 +51,15 @@
                                 <tr class="character-reward-row">
                                     @if ($expanded_rewards)
                                         <td>
-                                            {!! Form::select('character_rewardable_type[' . $character->character_id . '][]', ['Item' => 'Item', 'Currency' => 'Currency', 'LootTable' => 'Loot Table'], $reward->rewardable_type, [
-                                                'class' => 'form-control character-rewardable-type',
-                                                'placeholder' => 'Select Reward Type',
-                                            ]) !!}
+                                            {!! Form::select(
+                                                'character_rewardable_type[' . $character->character_id . '][]',
+                                                ['Item' => 'Item', 'Currency' => 'Currency', 'LootTable' => 'Loot Table', 'Exp' => 'Exp', 'Points' => 'Stat Points', 'Element' => 'Element', 'StatusEffect' => 'Status Effect'],
+                                                $reward->rewardable_type,
+                                                [
+                                                    'class' => 'form-control character-rewardable-type',
+                                                    'placeholder' => 'Select Reward Type',
+                                                ],
+                                            ) !!}
                                         </td>
                                         <td class="lootDivs">
                                             <div class="character-currencies  {{ $reward->rewardable_type == 'Currency' ? 'show' : 'hide' }}">{!! Form::select('character_rewardable_id[' . $character->character_id . '][]', $characterCurrencies, $reward->rewardable_type == 'Currency' ? $reward->rewardable_id : null, [
@@ -59,6 +71,16 @@
                                                 'class' => 'form-control character-table-id',
                                                 'placeholder' => 'Select Loot Table',
                                             ]) !!}</div>
+                                            <div class="character-claymores hide">{!! Form::number('character_rewardable_id[' . $character->character_id . '][]', $reward->rewardable_type == 'Exp' || $reward->rewardable_type == 'Points' ? 1 : null, ['class' => 'form-control character-claymores-id']) !!}</div>
+                                            <div class="character-elements {{ $reward->rewardable_type == 'Element' ? 'show' : 'hide' }}">{!! Form::select('character_rewardable_id[' . $character->character_id . '][]', $elements, $reward->rewardable_type == 'Element' ? $reward->rewardable_id : null, [
+                                                'class' => 'form-control character-element-id',
+                                                'placeholder' => 'Select Element',
+                                            ]) !!}</div>
+                                            <div class="character-statuses  {{ $reward->rewardable_type == 'StatusEffect' ? 'show' : 'hide' }}">{!! Form::select('character_rewardable_id[' . $character->character_id . '][]', $statuses, $reward->rewardable_type == 'StatusEffect' ? $reward->rewardable_id : null, [
+                                                'class' => 'form-control character-status-id',
+                                                'placeholder' => 'Select Status Effect',
+                                            ]) !!}
+                                            </div>
                                         </td>
                                     @else
                                         <td class="lootDivs">

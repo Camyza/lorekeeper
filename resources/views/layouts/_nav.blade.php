@@ -37,11 +37,18 @@
                             <a class="dropdown-item" href="{{ url('characters/myos') }}">
                                 My MYO Slots
                             </a>
+                            <a class="dropdown-item" href="{{ url('pets') }}">
+                                My Pets
+                            </a>
+                            <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url('inventory') }}">
                                 Inventory
                             </a>
                             <a class="dropdown-item" href="{{ url('bank') }}">
                                 Bank
+                            </a>
+                            <a class="dropdown-item" href="{{ url('userstats') }}">
+                                Stat Information
                             </a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" href="{{ url('comments/liked') }}">

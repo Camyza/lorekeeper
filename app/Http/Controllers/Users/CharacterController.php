@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Users;
 use App\Facades\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\Character\Character;
+use App\Models\Character\CharacterClass;
 use App\Models\Character\CharacterTransfer;
 use App\Models\User\User;
 use App\Services\CharacterManager;
@@ -69,6 +70,23 @@ class CharacterController extends Controller {
     }
 
     /**
+     * Sorts the characters pets.
+     *
+     * @param mixed $slug
+     */
+    public function postSortCharacterPets(CharacterManager $service, Request $request, $slug) {
+        if ($service->sortCharacterPets($request->only(['sort']), Auth::user())) {
+            flash('Pets sorted successfully.')->success();
+        } else {
+            foreach ($service->errors()->getMessages()['error'] as $error) {
+                flash($error)->error();
+            }
+        }
+
+        return redirect()->back();
+    }
+
+    /**
      * Shows the user's transfers.
      *
      * @param string $type
@@ -122,6 +140,45 @@ class CharacterController extends Controller {
             } else {
                 flash('Transfer '.strtolower($action).'ed.')->success();
             }
+        } else {
+            foreach ($service->errors()->getMessages()['error'] as $error) {
+                flash($error)->error();
+            }
+        }
+
+        return redirect()->back();
+    }
+
+    /************************************************************************************
+     * CLAYMORE
+     ************************************************************************************/
+
+    /**
+     * Changes / assigns the character class.
+     *
+     * @param int $id
+     *
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function getClassModal($id) {
+        $this->character = Character::find($id);
+        if (!$this->character) {
+            abort(404);
+        }
+
+        return view('admin.claymores.classes._modal', [
+            'classes'   => ['none' => 'No Class'] + CharacterClass::orderBy('name', 'DESC')->pluck('name', 'id')->toArray(),
+            'character' => $this->character,
+        ]);
+    }
+
+    public function postClassModal($id, Request $request, CharacterManager $service) {
+        $this->character = Character::find($id);
+        if (!$this->character) {
+            abort(404);
+        }
+        if ($service->editClass($request->only(['class_id']), $this->character, Auth::user())) {
+            flash('Character class edited successfully.')->success();
         } else {
             foreach ($service->errors()->getMessages()['error'] as $error) {
                 flash($error)->error();

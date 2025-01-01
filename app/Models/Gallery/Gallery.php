@@ -24,7 +24,6 @@ class Gallery extends Model {
      * @var string
      */
     protected $table = 'galleries';
-
     /**
      * The attributes that should be cast to native types.
      *

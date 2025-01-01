@@ -78,6 +78,16 @@ class PermalinkController extends Controller {
                         break;
                 }
                 break;
+            case 'Staff-Staff':
+                if (!Auth::check()) {
+                    abort(404);
+                }
+                if (!Auth::user()->hasPower('manage_submissions')) {
+                    abort(404);
+                }
+                break;
+            default:
+                break;
         }
 
         if ($comment->commentable_type == 'App\Models\User\UserProfile') {

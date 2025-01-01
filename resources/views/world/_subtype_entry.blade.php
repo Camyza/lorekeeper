@@ -13,6 +13,7 @@
                 <i class="fas fa-eye-slash mr-1"></i>
             @endif
             {!! $subtype->displayName !!} ({!! $subtype->species->displayName !!} Subtype)
+            @include('world._typing', ['object' => $subtype])
             <a href="{{ $subtype->searchUrl }}" class="world-entry-search text-muted">
                 <i class="fas fa-search"></i>
             </a>

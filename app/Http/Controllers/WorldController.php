@@ -3,16 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Models\Character\CharacterCategory;
+use App\Models\Character\CharacterClass;
+use App\Models\Claymore\Gear;
+use App\Models\Claymore\GearCategory;
+use App\Models\Claymore\Weapon;
+use App\Models\Claymore\WeaponCategory;
 use App\Models\Currency\Currency;
+use App\Models\Element\Element;
 use App\Models\Feature\Feature;
 use App\Models\Feature\FeatureCategory;
 use App\Models\Item\Item;
 use App\Models\Item\ItemCategory;
+use App\Models\Level\Level;
+use App\Models\Pet\Pet;
+use App\Models\Pet\PetCategory;
 use App\Models\Rarity;
 use App\Models\Shop\Shop;
 use App\Models\Shop\ShopStock;
+use App\Models\Skill\Skill;
+use App\Models\Skill\SkillCategory;
 use App\Models\Species\Species;
 use App\Models\Species\Subtype;
+use App\Models\Stat\Stat;
+use App\Models\Status\StatusEffect;
 use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -356,6 +369,23 @@ class WorldController extends Controller {
     }
 
     /**
+     * Shows the status effects page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getStatusEffects(Request $request) {
+        $query = StatusEffect::query();
+        $name = $request->get('name');
+        if ($name) {
+            $query->where('name', 'LIKE', '%'.$name.'%');
+        }
+
+        return view('world.status_effects', [
+            'statuses' => $query->orderBy('name')->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
      * Shows the items page.
      *
      * @return \Illuminate\Contracts\Support\Renderable
@@ -448,7 +478,13 @@ class WorldController extends Controller {
             'name'        => $item->displayName,
             'description' => $item->parsed_description,
             'categories'  => $categories->keyBy('id'),
-            'shops'       => Shop::whereIn('id', ShopStock::where('item_id', $item->id)->pluck('shop_id')->unique()->toArray())->orderBy('sort', 'DESC')->get(),
+            'shops'       => Shop::where(function ($shops) {
+                if (Auth::check() && Auth::user()->isStaff) {
+                    return $shops;
+                }
+
+                return $shops->where('is_staff', 0);
+            })->whereIn('id', ShopStock::where('item_id', $item->id)->pluck('shop_id')->unique()->toArray())->orderBy('sort', 'DESC')->get(),
         ]);
     }
 
@@ -466,6 +502,492 @@ class WorldController extends Controller {
 
         return view('world.character_categories', [
             'categories' => $query->visible(Auth::user() ?? null)->orderBy('sort', 'DESC')->orderBy('id')->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     *  LEVELS.
+     */
+    public function getLevels() {
+        return view('world.level_index');
+    }
+
+    /**
+     * Level types.
+     *
+     * @param mixed $type
+     */
+    public function getLevelTypes($type) {
+        if ($type == 'user') {
+            $levels = Level::where('level_type', 'User')->get();
+        } elseif ($type == 'character') {
+            $levels = Level::where('level_type', 'Character')->get();
+        } else {
+            abort(404);
+        }
+
+        return view('world.level_type_index', [
+            'levels' => $levels->paginate(20),
+            'type'   => $type,
+        ]);
+    }
+
+    /**
+     * Shows the stats page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getStats(Request $request) {
+        $query = Stat::query();
+
+        if ($request->has('name')) {
+            $squery->where('name', 'LIKE', '%'.$request->get('name').'%');
+        }
+
+        return view('world.stats', [
+            'stats' => $query->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     * Shows an individual stat's page.
+     *
+     * @param mixed $abbreviation
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getStat($abbreviation) {
+        $stat = Stat::where('abbreviation', $abbreviation)->first();
+
+        return view('world.stat', [
+            'stat' => $stat,
+        ]);
+    }
+
+    /**
+     * Shows the skill categories page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getSkillCategories(Request $request) {
+        $query = SkillCategory::query()->visible(Auth::check() ? Auth::user() : null);
+        $name = $request->get('name');
+        if ($name) {
+            $query->where('name', 'LIKE', '%'.$name.'%');
+        }
+
+        return view('world.skill_categories', [
+            'categories' => $query->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     * Shows the skills page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getSkills(Request $request) {
+        $query = Skill::with('category')->visible(Auth::check() ? Auth::user() : null);
+
+        $categoryVisibleCheck = SkillCategory::visible(Auth::check() ? Auth::user() : null)->pluck('id', 'name')->toArray();
+        // query where category is visible, or, no category and visible
+        $query->where(function ($query) use ($categoryVisibleCheck) {
+            $query->whereIn('skill_category_id', $categoryVisibleCheck)->orWhereNull('skill_category_id');
+        });
+
+        $data = $request->only(['skill_category_id', 'name', 'sort']);
+        if (isset($data['skill_category_id']) && $data['skill_category_id'] != 'none') {
+            $query->where('skill_category_id', $data['skill_category_id']);
+        }
+        if (isset($data['name'])) {
+            $query->where('name', 'LIKE', '%'.$data['name'].'%');
+        }
+
+        return view('world.skills', [
+            'skills'     => $query->paginate(20)->appends($request->query()),
+            'categories' => ['none' => 'Any Category'] + SkillCategory::visible(Auth::check() ? Auth::user() : null)->pluck('name', 'id')->toArray(),
+        ]);
+    }
+
+    /**
+     * Shows an individual skill's page.
+     *
+     * @param int $id
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getSkill($id) {
+        $categories = SkillCategory::get();
+        $skill = Skill::where('id', $id)->first();
+        if (!$skill) {
+            abort(404);
+        }
+
+        if (!$skill->is_visible) {
+            if (Auth::check() ? !Auth::user()->isStaff : true) {
+                abort(404);
+            }
+        }
+
+        return view('world.skill_page', [
+            'skill'       => $skill,
+            'imageUrl'    => $skill->imageUrl,
+            'name'        => $skill->displayName,
+            'description' => $skill->parsed_description,
+            'categories'  => $categories->keyBy('id'),
+        ]);
+    }
+
+    /**
+     * Shows the pet categories page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getPetCategories(Request $request) {
+        $query = PetCategory::query()->visible(Auth::check() ? Auth::user() : null);
+        $name = $request->get('name');
+        if ($name) {
+            $query->where('name', 'LIKE', '%'.$name.'%');
+        }
+
+        return view('world.pet_categories', [
+            'categories' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     * Shows the pets page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getPets(Request $request) {
+        $query = Pet::with('category')->visible(Auth::check() ? Auth::user() : null);
+
+        $categoryVisibleCheck = PetCategory::visible(Auth::check() ? Auth::user() : null)->pluck('id', 'name')->toArray();
+        // query where category is visible, or, no category and visible
+        $query->where(function ($query) use ($categoryVisibleCheck) {
+            $query->whereIn('pet_category_id', $categoryVisibleCheck)->orWhereNull('pet_category_id');
+        });
+
+        $data = $request->only(['pet_category_id', 'name', 'sort']);
+        if (isset($data['pet_category_id']) && $data['pet_category_id'] != 'none') {
+            $query->where('pet_category_id', $data['pet_category_id']);
+        }
+        if (isset($data['name'])) {
+            $query->where('name', 'LIKE', '%'.$data['name'].'%');
+        }
+
+        if (isset($data['sort'])) {
+            switch ($data['sort']) {
+                case 'alpha':
+                    $query->sortAlphabetical();
+                    break;
+                case 'alpha-reverse':
+                    $query->sortAlphabetical(true);
+                    break;
+                case 'category':
+                    $query->sortCategory();
+                    break;
+                case 'newest':
+                    $query->sortNewest();
+                    break;
+                case 'oldest':
+                    $query->sortOldest();
+                    break;
+            }
+        } else {
+            $query->sortCategory();
+        }
+
+        return view('world.pets', [
+            'pets'       => $query->paginate(20)->appends($request->query()),
+            'categories' => ['none' => 'Any Category'] + PetCategory::visible(Auth::check() ? Auth::user() : null)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+        ]);
+    }
+
+    /**
+     * Gets a specific pet page.
+     *
+     * @param mixed $id
+     */
+    public function getPet($id) {
+        $pet = Pet::with('category')->findOrFail($id);
+
+        if (!$pet->is_visible) {
+            if (Auth::check() ? !Auth::user()->isStaff : true) {
+                abort(404);
+            }
+        }
+
+        return view('world.pet_page', [
+            'pet' => $pet,
+        ]);
+    }
+
+    /**
+     * Shows the weapon categories page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getWeaponCategories(Request $request) {
+        $query = WeaponCategory::query()->visible(Auth::check() ? Auth::user() : null);
+        $name = $request->get('name');
+        if ($name) {
+            $query->where('name', 'LIKE', '%'.$name.'%');
+        }
+
+        return view('world.weapon_categories', [
+            'categories' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     * Shows the weapons page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getWeapons(Request $request) {
+        $query = Weapon::with('category')->visible(Auth::check() ? Auth::user() : null);
+
+        $categoryVisibleCheck = WeaponCategory::visible(Auth::check() ? Auth::user() : null)->pluck('id', 'name')->toArray();
+        // query where category is visible, or, no category and visible
+        $query->where(function ($query) use ($categoryVisibleCheck) {
+            $query->whereIn('weapon_category_id', $categoryVisibleCheck)->orWhereNull('weapon_category_id');
+        });
+
+        $data = $request->only(['weapon_category_id', 'name', 'sort']);
+        if (isset($data['weapon_category_id']) && $data['weapon_category_id'] != 'none') {
+            $query->where('weapon_category_id', $data['weapon_category_id']);
+        }
+        if (isset($data['name'])) {
+            $query->where('name', 'LIKE', '%'.$data['name'].'%');
+        }
+
+        if (isset($data['sort'])) {
+            switch ($data['sort']) {
+                case 'alpha':
+                    $query->sortAlphabetical();
+                    break;
+                case 'alpha-reverse':
+                    $query->sortAlphabetical(true);
+                    break;
+                case 'category':
+                    $query->sortCategory();
+                    break;
+                case 'newest':
+                    $query->sortNewest();
+                    break;
+                case 'oldest':
+                    $query->sortOldest();
+                    break;
+            }
+        } else {
+            $query->sortCategory();
+        }
+
+        return view('world.weapons', [
+            'weapons'    => $query->paginate(20)->appends($request->query()),
+            'categories' => ['none' => 'Any Category'] + WeaponCategory::visible(Auth::check() ? Auth::user() : null)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+        ]);
+    }
+
+    /**
+     * Shows an individual weapon's page.
+     *
+     * @param int $id
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getWeapon($id) {
+        $categories = WeaponCategory::orderBy('sort', 'DESC')->get();
+        $weapon = Weapon::where('id', $id)->first();
+        if (!$weapon) {
+            abort(404);
+        }
+
+        if (!$weapon->is_visible) {
+            if (Auth::check() ? !Auth::user()->isStaff : true) {
+                abort(404);
+            }
+        }
+
+        return view('world.weapon_page', [
+            'weapon'      => $weapon,
+            'imageUrl'    => $weapon->imageUrl,
+            'name'        => $weapon->displayName,
+            'description' => $weapon->parsed_description,
+            'categories'  => $categories->keyBy('id'),
+        ]);
+    }
+
+    /**
+     * Shows the gear categories page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getGearCategories(Request $request) {
+        $query = GearCategory::query()->visible(Auth::check() ? Auth::user() : null);
+        $name = $request->get('name');
+        if ($name) {
+            $query->where('name', 'LIKE', '%'.$name.'%');
+        }
+
+        return view('world.gear_categories', [
+            'categories' => $query->orderBy('sort', 'DESC')->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     * Shows the gears page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getGears(Request $request) {
+        $query = Gear::with('category')->visible(Auth::check() ? Auth::user() : null);
+
+        $categoryVisibleCheck = GearCategory::visible(Auth::check() ? Auth::user() : null)->pluck('id', 'name')->toArray();
+        // query where category is visible, or, no category and visible
+        $query->where(function ($query) use ($categoryVisibleCheck) {
+            $query->whereIn('gear_category_id', $categoryVisibleCheck)->orWhereNull('gear_category_id');
+        });
+
+        $data = $request->only(['gear_category_id', 'name', 'sort']);
+        if (isset($data['gear_category_id']) && $data['gear_category_id'] != 'none') {
+            $query->where('gear_category_id', $data['gear_category_id']);
+        }
+        if (isset($data['name'])) {
+            $query->where('name', 'LIKE', '%'.$data['name'].'%');
+        }
+
+        if (isset($data['sort'])) {
+            switch ($data['sort']) {
+                case 'alpha':
+                    $query->sortAlphabetical();
+                    break;
+                case 'alpha-reverse':
+                    $query->sortAlphabetical(true);
+                    break;
+                case 'category':
+                    $query->sortCategory();
+                    break;
+                case 'newest':
+                    $query->sortNewest();
+                    break;
+                case 'oldest':
+                    $query->sortOldest();
+                    break;
+            }
+        } else {
+            $query->sortCategory();
+        }
+
+        return view('world.gears', [
+            'gears'      => $query->paginate(20)->appends($request->query()),
+            'categories' => ['none' => 'Any Category'] + GearCategory::visible(Auth::check() ? Auth::user() : null)->orderBy('sort', 'DESC')->pluck('name', 'id')->toArray(),
+        ]);
+    }
+
+    /**
+     * Shows an individual gear's page.
+     *
+     * @param int $id
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getGear($id) {
+        $categories = GearCategory::orderBy('sort', 'DESC')->get();
+        $gear = Gear::where('id', $id)->first();
+        if (!$gear) {
+            abort(404);
+        }
+
+        if (!$gear->is_visible) {
+            if (Auth::check() ? !Auth::user()->isStaff : true) {
+                abort(404);
+            }
+        }
+
+        return view('world.gear_page', [
+            'gear'        => $gear,
+            'imageUrl'    => $gear->imageUrl,
+            'name'        => $gear->displayName,
+            'description' => $gear->parsed_description,
+            'categories'  => $categories->keyBy('id'),
+        ]);
+    }
+
+    /**
+     * Shows the character classes page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getCharacterClasses(Request $request) {
+        $query = CharacterClass::query()->visible(Auth::check() ? Auth::user() : null);
+        $name = $request->get('name');
+        if ($name) {
+            $query->where('name', 'LIKE', '%'.$name.'%');
+        }
+
+        return view('world.character_class', [
+            'classes' => $query->orderBy('name', 'DESC')->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     * Shows the elements page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getElements(Request $request) {
+        $query = Element::query()->visible(Auth::check() ? Auth::user() : null);
+        $name = $request->get('name');
+        if ($name) {
+            $query->where('name', 'LIKE', '%'.$name.'%');
+        }
+
+        if (isset($data['sort'])) {
+            switch ($data['sort']) {
+                case 'alpha':
+                    $query->sortAlphabetical();
+                    break;
+                case 'alpha-reverse':
+                    $query->sortAlphabetical(true);
+                    break;
+                case 'newest':
+                    $query->sortNewest();
+                    break;
+                case 'oldest':
+                    $query->sortOldest();
+                    break;
+            }
+        } else {
+            $query->sortAlphabetical();
+        }
+
+        return view('world.elements', [
+            'elements' => $query->orderBy('name', 'DESC')->paginate(20)->appends($request->query()),
+        ]);
+    }
+
+    /**
+     * Shows a single element's page.
+     *
+     * @param mixed $id
+     */
+    public function getElement($id) {
+        $element = Element::where('id', $id)->first();
+        if (!$element) {
+            abort(404);
+        }
+
+        if (!$element->is_visible) {
+            if (Auth::check() ? !Auth::user()->isStaff : true) {
+                abort(404);
+            }
+        }
+
+        return view('world.element_page', [
+            'element' => $element,
         ]);
     }
 }

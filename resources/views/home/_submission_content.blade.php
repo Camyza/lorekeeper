@@ -7,7 +7,6 @@
 
 </h1>
 
-
 <div class="card mb-3" style="clear:both;">
     <div class="card-body">
         <div class="row mb-2 no-gutters">
@@ -119,7 +118,14 @@
                 <div class="submission-character-info card ml-2">
                     <div class="card-body">
                         <div class="submission-character-info-content">
-                            <h3 class="mb-2 submission-character-info-header"><a href="{{ $character->character->url }}">{{ $character->character->fullName }}</a></h3>
+                            <h3 class="mb-2 submission-character-info-header">
+                                <a href="{{ $character->character->url }}">
+                                    {{ $character->character->fullName }}
+                                    @if ($character->is_focus)
+                                        <i class="fas fa-bullseye float-right mr-2" data-toggle="tooltip" data-placement="top" title="This character is the focus of the submission!"></i>
+                                    @endif
+                                </a>
+                            </h3>
                             <div class="submission-character-info-body">
                                 @if (array_filter(parseAssetData($character->data)))
                                     <table class="table table-sm mb-0">
@@ -132,10 +138,17 @@
                                         <tbody>
                                             @foreach (parseAssetData($character->data) as $key => $type)
                                                 @foreach ($type as $asset)
-                                                    <tr>
-                                                        <td>{!! $asset['asset']->displayName !!} ({!! ucfirst($key) !!})</td>
-                                                        <td>{{ $asset['quantity'] }}</td>
-                                                    </tr>
+                                                    @if ($key == 'exp' || $key == 'points')
+                                                        <tr>
+                                                            <td>{!! ucfirst($key) !!}</td>
+                                                            <td>{{ $type['quantity'] }}</td>
+                                                        </tr>
+                                                    @else
+                                                        <tr>
+                                                            <td>{!! $asset['asset']->displayName !!} ({!! ucfirst($key) !!})</td>
+                                                            <td>{{ $asset['quantity'] }}</td>
+                                                        </tr>
+                                                    @endif
                                                 @endforeach
                                             @endforeach
 
@@ -171,6 +184,7 @@
         @endforeach
     </div>
 </div>
+
 
 @if (isset($inventory['user_items']) && array_filter($inventory['user_items']))
     <div class="card mb-3">

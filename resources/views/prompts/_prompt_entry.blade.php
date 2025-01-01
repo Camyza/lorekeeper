@@ -23,7 +23,7 @@
         <div class="world-entry-text">
             <p>{{ $prompt->summary }}</p>
             <h3 class="mb-3"><a data-toggle="collapse" href="#prompt-{{ $prompt->id }}" @if (isset($isPage)) aria-expanded="true" @endif>Details <i class="fas fa-angle-down"></i></a></h3>
-            <div class="collapse @if (isset($isPage)) show @endif mb-5" id="prompt-{{ $prompt->id }}">
+            <div class="collapse @if (isset($isPage)) show @endif" id="prompt-{{ $prompt->id }}">
                 @if ($prompt->parsed_description)
                     {!! $prompt->parsed_description !!}
                 @else
@@ -49,15 +49,51 @@
                     <tbody>
                         @foreach ($prompt->rewards as $reward)
                             <tr>
-                                <td>{!! $reward->reward->displayName !!}</td>
+                                <td>{!! $reward->reward ? $reward->reward->displayName : $reward->rewardable_type !!}</td>
                                 <td>{{ $reward->quantity }}</td>
                             </tr>
                         @endforeach
                     </tbody>
                 </table>
             @endif
+            <hr>
+            <h4>Skills</h4>
+            @if (!count($prompt->skills))
+                No skill increase.
+            @else
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th width="70%">Skill</th>
+                            <th width="30%">Amount</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($prompt->skills as $skill)
+                            <tr>
+                                <td>{!! $skill->skill->displayName !!}
+                                    @if ($skill->skill->parent)
+                                        <br><span class="text-danger">This skill requires {!! $skill->skill->parent->displayname !!} level {{ $skill->skill->parent_level }} on all focus characters.</span>
+                                    @endif
+                                    @if ($skill->skill->prerequisite)
+                                        <br><span class="text-danger">This skill requires {!! $skill->skill->prerequisite->displayname !!} on all focus characters.</span>
+                                    @endif
+                                </td>
+                                <td>{{ $skill->quantity }}</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @endif
+            @if (count(getLimits($prompt)))
+                <hr />
+                @include('widgets._limits', ['object' => $prompt])
+            @endif
         </div>
-        <div class="text-right">
+        <div class="text-right mt-1">
+            @if ($prompt->level_req)
+                <p class="text-danger">This prompt requires you to be at least level {{ $prompt->level_req }}</p>
+            @endif
             @if ($prompt->end_at && $prompt->end_at->isPast())
                 <span class="text-secondary">This prompt has ended.</span>
             @elseif($prompt->start_at && $prompt->start_at->isFuture())

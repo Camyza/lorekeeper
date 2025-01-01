@@ -263,6 +263,14 @@
             </div>
         </div>
 
+        @if ($stats)
+            <h3>Stats</h3>
+            <p class="alert alert-info">If you want a character to have different stats from the default, set them here. Else, leave it as default</p>
+            <div class="form-group" id="stats">
+                <p>Set species and/or subtype to edit stats.</p>
+            </div>
+        @endif
+
         <div class="text-right">
             {!! Form::submit('Create Character', ['class' => 'btn btn-primary']) !!}
         </div>
@@ -284,6 +292,7 @@
     <script>
         $("#species").change(function() {
             var species = $('#species').val();
+            var subtype = $('#subtype').val();
             var myo = '<?php echo $isMyo; ?>';
             $.ajax({
                 type: "GET",
@@ -294,6 +303,31 @@
                 $("#subtype").selectize({
                     maxItems: {{ config('lorekeeper.extensions.multiple_subtype_limit') }},
                 });
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                alert("AJAX call failed: " + textStatus + ", " + errorThrown);
+            });
+
+            // Check stats
+            $.ajax({
+                type: "GET",
+                url: "{{ url('admin/masterlist/check-stats') }}?species=" + species + "&subtype=" + subtype,
+                dataType: "text"
+            }).done(function(res) {
+                $("#stats").html(res);
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                alert("AJAX call failed: " + textStatus + ", " + errorThrown);
+            });
+        });
+
+        $("#subtypes").change(function() {
+            var species = $('#species').val();
+            var subtype = $('#subtype').val();
+            $.ajax({
+                type: "GET",
+                url: "{{ url('admin/masterlist/check-stats') }}?species=" + species + "&subtype=" + subtype,
+                dataType: "text"
+            }).done(function(res) {
+                $("#stats").html(res);
             }).fail(function(jqXHR, textStatus, errorThrown) {
                 alert("AJAX call failed: " + textStatus + ", " + errorThrown);
             });

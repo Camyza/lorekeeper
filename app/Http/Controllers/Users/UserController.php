@@ -6,21 +6,26 @@ use App\Http\Controllers\Controller;
 use App\Models\Character\Character;
 use App\Models\Character\CharacterImage;
 use App\Models\Character\Sublist;
+use App\Models\Claymore\GearCategory;
+use App\Models\Claymore\WeaponCategory;
 use App\Models\Currency\Currency;
 use App\Models\Gallery\Gallery;
 use App\Models\Gallery\GalleryCharacter;
 use App\Models\Gallery\GallerySubmission;
 use App\Models\Item\Item;
 use App\Models\Item\ItemCategory;
+use App\Models\Pet\Pet;
+use App\Models\Pet\PetCategory;
 use App\Models\Prompt\Prompt;
 use App\Models\Rarity;
 use App\Models\User\User;
 use App\Models\User\UserCurrency;
+use App\Models\User\UserPet;
 use App\Models\User\UserUpdateLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\View;
-use Route;
 
 class UserController extends Controller {
     /*
@@ -51,6 +56,11 @@ class UserController extends Controller {
 
         $this->user->updateCharacters();
         $this->user->updateArtDesignCredits();
+        if (!$this->user->level) {
+            $this->user->level()->create([
+                'user_id' => $this->user->id,
+            ]);
+        }
     }
 
     /**
@@ -66,6 +76,13 @@ class UserController extends Controller {
             $characters->visible();
         }
 
+        $gears = $this->user->gears()->orderBy('user_gears.updated_at', 'DESC')->take(4)->get();
+        $weapons = $this->user->weapons()->orderBy('user_weapons.updated_at', 'DESC')->take(4)->get();
+
+        $armours = $gears->concat($weapons)->sortByDesc(function ($item) {
+            return $item->updated_at;
+        })->take(4);
+
         $aliases = $this->user->aliases();
         if (!Auth::check() || !(Auth::check() && Auth::user()->hasPower('edit_user_info'))) {
             $aliases->visible();
@@ -77,6 +94,8 @@ class UserController extends Controller {
             'items'      => $this->user->items()->where('count', '>', 0)->orderBy('user_items.updated_at', 'DESC')->take(4)->get(),
             'characters' => $characters,
             'aliases'    => $aliases->orderBy('is_primary_alias', 'DESC')->orderBy('site')->get(),
+            'armours'    => $armours,
+            'pets'       => $this->user->pets()->orderBy('user_pets.updated_at', 'DESC')->take(5)->get(),
         ]);
     }
 
@@ -250,6 +269,46 @@ class UserController extends Controller {
     }
 
     /**
+     * Shows a user's pets.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserPets($name) {
+        $categories = PetCategory::orderBy('sort', 'DESC')->get();
+        $pets = count($categories) ? $this->user->pets()->orderByRaw('FIELD(pet_category_id,'.implode(',', $categories->pluck('id')->toArray()).')')->orderBy('name')->orderBy('updated_at')->get()->groupBy('pet_category_id') : $this->user->pets()->orderBy('name')->orderBy('updated_at')->get()->groupBy('pet_category_id');
+
+        return view('user.pets', [
+            'user'        => $this->user,
+            'categories'  => $categories->keyBy('id'),
+            'pets'        => $pets,
+            'userOptions' => User::where('id', '!=', $this->user->id)->orderBy('name')->pluck('name', 'id')->toArray(),
+            'user'        => $this->user,
+            'logs'        => $this->user->getPetLogs(),
+        ]);
+    }
+
+    /**
+     * Shows a user's pets.
+     *
+     * @param string $name
+     * @param mixed  $id
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserPet($name, $id) {
+        $pet = UserPet::findOrFail($id);
+
+        return view('user.pet', [
+            'user'        => $this->user,
+            'pet'         => $pet,
+            'userOptions' => User::where('id', '!=', $this->user->id)->orderBy('name')->pluck('name', 'id')->toArray(),
+            'logs'        => $this->user->getPetLogs(),
+        ]);
+    }
+
+    /**
      * Shows a user's Bank.
      *
      * @param string $name
@@ -266,6 +325,50 @@ class UserController extends Controller {
             'currencyOptions' => Currency::where('allow_user_to_user', 1)->where('is_user_owned', 1)->whereIn('id', UserCurrency::where('user_id', $this->user->id)->pluck('currency_id')->toArray())->orderBy('sort_user', 'DESC')->pluck('name', 'id')->toArray(),
             'userOptions'     => User::where('id', '!=', Auth::user()->id)->orderBy('name')->pluck('name', 'id')->toArray(),
         ] : []));
+    }
+
+    /**
+     * Shows a user's profile.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserStats($name) {
+        return view('user.stats', [
+            'user'     => $this->user,
+            'exps'     => $this->user->getExpLogs(),
+            'levels'   => $this->user->getLevelLogs(),
+            'stats'    => $this->user->getStatLogs(),
+            'sublists' => Sublist::orderBy('sort', 'DESC')->get(),
+        ]);
+    }
+
+    /**
+     * Shows a user's pets.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserArmoury($name) {
+        $weaponCategories = WeaponCategory::orderBy('sort', 'DESC')->get();
+        $gearCategories = GearCategory::orderBy('sort', 'DESC')->get();
+
+        $gears = count($gearCategories) ? $this->user->gears()->orderByRaw('FIELD(gear_category_id,'.implode(',', $gearCategories->pluck('id')->toArray()).')')->orderBy('name')->orderBy('updated_at')->get()->groupBy('gear_category_id') : $this->user->gears()->orderBy('name')->orderBy('updated_at')->get()->groupBy('gear_category_id');
+        $weapons = count($weaponCategories) ? $this->user->weapons()->orderByRaw('FIELD(weapon_category_id,'.implode(',', $weaponCategories->pluck('id')->toArray()).')')->orderBy('name')->orderBy('updated_at')->get()->groupBy('weapon_category_id') : $this->user->weapons()->orderBy('name')->orderBy('updated_at')->get()->groupBy('weapon_category_id');
+
+        return view('user.armoury', [
+            'user'             => $this->user,
+            'weaponCategories' => $weaponCategories->keyBy('id'),
+            'gearCategories'   => $gearCategories->keyBy('id'),
+            'weapons'          => $weapons,
+            'gears'            => $gears,
+            'userOptions'      => User::where('id', '!=', $this->user->id)->orderBy('name')->pluck('name', 'id')->toArray(),
+            'user'             => $this->user,
+            'weaponLogs'       => $this->user->getWeaponLogs(),
+            'gearLogs'         => $this->user->getGearLogs(),
+        ]);
     }
 
     /**
@@ -297,6 +400,102 @@ class UserController extends Controller {
         return view('user.item_logs', [
             'user' => $this->user,
             'logs' => $this->user->getItemLogs(0),
+        ]);
+    }
+
+    /**
+     * Shows a user's pet logs.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserPetLogs($name) {
+        $user = $this->user;
+
+        return view('user.pet_logs', [
+            'user' => $this->user,
+            'logs' => $this->user->getPetLogs(0),
+        ]);
+    }
+
+    /**
+     * Shows a user's exp logs.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserExpLogs($name) {
+        $user = $this->user;
+
+        return view('user.exp_logs', [
+            'user'     => $this->user,
+            'logs'     => $this->user->getExpLogs(0),
+        ]);
+    }
+
+    /**
+     * Shows a user's level logs.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserLevelLogs($name) {
+        $user = $this->user;
+
+        return view('user.level_logs', [
+            'user'     => $this->user,
+            'logs'     => $this->user->getLevelLogs(0),
+        ]);
+    }
+
+    /**
+     * Shows a user's stat logs.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserStatLogs($name) {
+        $user = $this->user;
+
+        return view('user.stat_logs', [
+            'user'     => $this->user,
+            'logs'     => $this->user->getStatLogs(0),
+        ]);
+    }
+
+    /**
+     * Shows a user's item logs.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserGearLogs($name) {
+        $user = $this->user;
+
+        return view('user.gear_logs', [
+            'user'     => $this->user,
+            'logs'     => $this->user->getGearLogs(0),
+        ]);
+    }
+
+    /**
+     * Shows a user's item logs.
+     *
+     * @param string $name
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getUserWeaponLogs($name) {
+        $user = $this->user;
+
+        return view('user.weapon_logs', [
+            'user'     => $this->user,
+            'logs'     => $this->user->getWeaponLogs(0),
         ]);
     }
 

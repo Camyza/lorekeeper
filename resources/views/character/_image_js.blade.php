@@ -4,6 +4,10 @@
             e.preventDefault();
             loadModal("{{ url('admin/character/image') }}/" + $(this).data('id') + "/traits", 'Edit Traits');
         });
+        $('.edit-class').on('click', function(e) {
+            e.preventDefault();
+            loadModal("{{ url('characters/class/edit') }}/" + $(this).data('id'), 'Edit Class');
+        });
         $('.edit-notes').on('click', function(e) {
             e.preventDefault();
             $("div.imagenoteseditingparse").load("{{ url('admin/character/image') }}/" + $(this).data('id') + "/notes", function() {
@@ -76,6 +80,11 @@
             e.preventDefault();
             loadModal("{{ url($character->is_myo_slot ? 'admin/myo/' : 'admin/character/') }}/" + $(this).data('{{ $character->is_myo_slot ? 'id' : 'slug' }}') + "/delete", 'Delete Character');
         });
-
+        $('.edit-typing').on('click', function(e) {
+            e.preventDefault();
+            let is_myo = "{{ $character->is_myo_slot }}";
+            if (!is_myo) return;
+            loadModal("{{ url('admin/character/') }}/" + $(this).data('id') + "/typing", 'Edit Character Typing');
+        });
     });
 </script>

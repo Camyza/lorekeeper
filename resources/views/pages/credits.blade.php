@@ -197,7 +197,7 @@
             @foreach ($extensions as $extension)
                 <p class="mb-0 col-md-4">
                     <a href="http://wiki.lorekeeper.me/index.php?title=Extensions:{{ $extension->wiki_key }}">
-                        <strong>{{ str_replace('_', ' ', $extension->wiki_key) }}</strong>
+                        <strong>{{ str_replace(['_', '%26'], [' ', '&'], $extension->wiki_key) }}</strong>
                         <small>v. {{ $extension->version }}</small>
                     </a>
                     by

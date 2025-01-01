@@ -391,4 +391,22 @@ class CharacterImageController extends Controller {
 
         return redirect()->back();
     }
+
+    /**
+     * Gets the typing widget for a character image.
+     *
+     * @param mixed $id
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getTyping($id) {
+        $image = CharacterImage::find($id);
+        if (!$image) {
+            abort(404);
+        }
+
+        return view('widgets._add_typing', [
+            'object' => $image,
+        ]);
+    }
 }

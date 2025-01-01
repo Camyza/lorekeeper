@@ -14,7 +14,7 @@ class Prompt extends Model {
     protected $fillable = [
         'prompt_category_id', 'name', 'summary', 'description', 'parsed_description', 'is_active',
         'start_at', 'end_at', 'hide_before_start', 'hide_after_end', 'has_image', 'prefix',
-        'hide_submissions', 'staff_only', 'hash',
+        'hide_submissions', 'staff_only', 'hash', 'level_req',
     ];
 
     /**
@@ -23,7 +23,6 @@ class Prompt extends Model {
      * @var string
      */
     protected $table = 'prompts';
-
     /**
      * The attributes that should be cast to native types.
      *
@@ -80,6 +79,13 @@ class Prompt extends Model {
      */
     public function rewards() {
         return $this->hasMany(PromptReward::class, 'prompt_id');
+    }
+
+    /**
+     * Get the skills attached to this prompt.
+     */
+    public function skills() {
+        return $this->hasMany(PromptSkill::class, 'prompt_id');
     }
 
     /**********************************************************************************************

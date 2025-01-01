@@ -58,6 +58,8 @@
     {!! Form::close() !!}
 
     @if ($subtype->id)
+        @include('widgets._add_typing', ['object' => $subtype, 'info' => 'Subtype typings take priority over species typings.'])
+
         <h3>Preview</h3>
         <div class="card mb-3">
             <div class="card-body">

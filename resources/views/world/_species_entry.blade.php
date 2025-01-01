@@ -13,6 +13,7 @@
                 <i class="fas fa-eye-slash mr-1"></i>
             @endif
             {!! $species->displayName !!}
+            @include('world._typing', ['object' => $species])
             <a href="{{ $species->searchUrl }}" class="world-entry-search text-muted">
                 <i class="fas fa-search"></i>
             </a>

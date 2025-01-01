@@ -85,11 +85,30 @@
         @include('widgets._loot_select', ['loots' => $submission->rewards, 'showLootTables' => true, 'showRaffles' => true])
         @if ($submission->prompt_id)
             <div class="mb-3">
+                <h2>Skill Rewards</h2>
+                <div class="form-group">
+                    <div id="skillList">
+                        @foreach ($submission->prompt->skills as $skill)
+                            <div class="d-flex mb-2">
+                                {!! Form::select('skill_id[]', $skills, $skill->skill_id, ['class' => 'form-control mr-2 skill-select original', 'placeholder' => 'Select Skill']) !!}
+                                {!! Form::text('skill_quantity[]', $skill->quantity, ['class' => 'form-control mr-2', 'placeholder' => 'Amount of level']) !!}
+                                <a href="#" class="remove-skill btn btn-danger mb-2">×</a>
+                            </div>
+                        @endforeach
+                    </div>
+                    <div><a href="#" class="btn btn-primary" id="add-skill">Add Skill Reward</a></div>
+                </div>
+
+                <hr />
+            </div>
+
+            <div class="mb-3">
                 @include('home._prompt', ['prompt' => $submission->prompt, 'staffView' => true])
             </div>
         @endif
 
         <h2>Characters</h2>
+        <p>Only focus characters will receive skill rewards. Exp and stat point rewards are on a per-character basis.</p>
         <div id="characters" class="mb-3">
             @if (count($submission->characters()->whereRelation('character', 'deleted_at', null)->get()) != count($submission->characters()->get()))
                 <div class="alert alert-warning">
@@ -97,7 +116,14 @@
                 </div>
             @endif
             @foreach ($submission->characters()->whereRelation('character', 'deleted_at', null)->get() as $character)
-                @include('widgets._character_select_entry', ['characterCurrencies' => $characterCurrencies, 'items' => $items, 'tables' => $tables, 'character' => $character, 'expanded_rewards' => $expanded_rewards])
+                @include('widgets._character_select_entry', [
+                    'characterCurrencies' => $characterCurrencies,
+                    'items' => $items,
+                    'tables' => $tables,
+                    'character' => $character,
+                    'expanded_rewards' => $expanded_rewards,
+                    'elements' => $elements,
+                ])
             @endforeach
         </div>
         <div class="text-right mb-3">
@@ -165,6 +191,12 @@
 
         {!! Form::close() !!}
 
+        <div class="skill-row hide mb-2">
+            {!! Form::select('skill_id[]', $skills, null, ['class' => 'form-control mr-2 skill-select', 'placeholder' => 'Select Skill']) !!}
+            {!! Form::text('skill_quantity[]', null, ['class' => 'form-control mr-2', 'placeholder' => 'Amount of level']) !!}
+            <a href="#" class="remove-skill btn btn-danger mb-2">×</a>
+        </div>
+
         <div id="characterComponents" class="hide">
             <div class="submission-character mb-3 card">
                 <div class="card-body">
@@ -178,8 +210,12 @@
                         </div>
                         <div class="col-md-10">
                             <div class="form-group">
-                                {!! Form::label('slug', 'Character Code') !!}
-                                {!! Form::select('slug[]', $characters, null, ['class' => 'form-control character-code', 'placeholder' => 'Select Character']) !!}
+                                {!! Form::label('slug[]', 'Character Code') !!}
+                                {!! Form::text('slug[]', null, ['class' => 'form-control character-code']) !!}
+                            </div>
+                            <div class="form-group col-6">
+                                {!! Form::label('character-is-focus[]', 'Focus Character?', ['class' => 'form-check-label ']) !!}
+                                {!! Form::select('character-is-focus[]', [0 => 'No', 1 => 'Yes'], 0, ['class' => 'form-control character-is-focus']) !!}
                             </div>
                             <div class="character-rewards hide">
                                 <h4>Character Rewards</h4>
@@ -208,15 +244,20 @@
             </div>
             <table>
                 <tr class="character-reward-row">
-
                     @if ($expanded_rewards)
                         <td>
-                            {!! Form::select('character_rewardable_type[]', ['Item' => 'Item', 'Currency' => 'Currency', 'LootTable' => 'Loot Table'], null, ['class' => 'form-control character-rewardable-type', 'placeholder' => 'Select Reward Type']) !!}
+                            {!! Form::select('character_rewardable_type[]', ['Item' => 'Item', 'Currency' => 'Currency', 'LootTable' => 'Loot Table', 'Exp' => 'Exp', 'Points' => 'Stat Points', 'Element' => 'Element', 'StatusEffect' => 'Status Effect'], null, [
+                                'class' => 'form-control character-rewardable-type',
+                                'placeholder' => 'Select Reward Type',
+                            ]) !!}
                         </td>
                         <td class="lootDivs">
                             <div class="character-currencies hide">{!! Form::select('character_rewardable_id[]', $characterCurrencies, 0, ['class' => 'form-control character-currency-id', 'placeholder' => 'Select Currency']) !!}</div>
                             <div class="character-items hide">{!! Form::select('character_rewardable_id[]', $items, 0, ['class' => 'form-control character-item-id', 'placeholder' => 'Select Item']) !!}</div>
                             <div class="character-tables hide">{!! Form::select('character_rewardable_id[]', $tables, 0, ['class' => 'form-control character-table-id', 'placeholder' => 'Select Loot Table']) !!}</div>
+                            <div class="character-claymores hide">{!! Form::number('character_claymores_id[]', 1, ['class' => 'form-control character-claymores-id']) !!}</div>
+                            <div class="character-elements hide">{!! Form::select('character_rewardable_id[]', $elements, 0, ['class' => 'form-control character-element-id', 'placeholder' => 'Select Element']) !!}</div>
+                            <div class="character-statuses hide">{!! Form::select('character_rewardable_id[]', $statuses, 0, ['class' => 'form-control character-status-id', 'placeholder' => 'Select Status Effect']) !!}</div>
                         </td>
                     @else
                         <td class="lootDivs">
@@ -345,6 +386,33 @@
                     $submissionForm.attr('action', '{{ url()->current() }}/cancel');
                     $submissionForm.submit();
                 });
+
+                $('.original.skill-select').selectize();
+
+                $('#add-skill').on('click', function(e) {
+                    e.preventDefault();
+                    addSkillRow();
+                });
+                $('.remove-skill').on('click', function(e) {
+                    e.preventDefault();
+                    removeSkillRow($(this));
+                });
+
+                function addSkillRow() {
+                    var $clone = $('.skill-row').clone();
+                    $('#skillList').append($clone);
+                    $clone.removeClass('hide skill-row');
+                    $clone.addClass('d-flex');
+                    $clone.find('.remove-skill').on('click', function(e) {
+                        e.preventDefault();
+                        removeSkillRow($(this));
+                    })
+                    $clone.find('.skill-select').selectize();
+                }
+
+                function removeSkillRow($trigger) {
+                    $trigger.parent().remove();
+                }
             });
         </script>
     @endif
