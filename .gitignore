@@ -12,3 +12,4 @@ yarn-error.log
 *.env
 /composer.phar
 *.cache
+public/images/profileimgs/1.jpg
