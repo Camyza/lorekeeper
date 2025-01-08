@@ -13,10 +13,11 @@ return [
     // ],
     
 	'Profile_Header_Image' => [
-	'wiki_key' => 'Profile Header Image',
-    'creators' => json_encode([
-        'Camy' => 'https://github.com/Camyza',
-    ]),
-    'version'  => '1.0.0',
+		'key' => 'Profile_Header_image',
+		'wiki_key' => 'Profile Header Image',
+		'creators' => json_encode([
+			'Camy' => 'https://github.com/Camyza',
+		]),
+		'version'  => '1.0.0',
 	],
 ];
