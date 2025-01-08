@@ -12,5 +12,11 @@ return [
     //     'version' => '1.0.0',
     // ],
     
-
+	'Profile_Header_Image' => [
+	'wiki_key' => 'Profile Header Image',
+    'creators' => json_encode([
+        'Camy' => 'https://github.com/Camyza',
+    ]),
+    'version'  => '1.0.0',
+	],
 ];
