@@ -14,7 +14,7 @@ return [
     
 	'Profile_Header_Image' => [
 		'key' => 'Profile_Header_image',
-		'wiki_key' => 'Profile Header Image',
+		'wiki_key' => 'Profile_Header_Image',
 		'creators' => json_encode([
 			'Camy' => 'https://github.com/Camyza',
 		]),
