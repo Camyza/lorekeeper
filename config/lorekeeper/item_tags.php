@@ -28,6 +28,6 @@ return [
     'foreground' => [
         'name'             => 'Foreground',
         'text_color'       => 'black',
-        'background_color' => 'lightblue'
+        'background_color' => 'lightblue',
     ],
 ];

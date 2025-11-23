@@ -119,9 +119,9 @@ class CharacterController extends Controller {
         $fg = $foreground->checkForeground($this->character);
 
         return view('character.character', [
-            'character'             => $this->character,
-            'showMention'           => true,
-            'extPrevAndNextBtnsUrl' => '',
+            'character'                    => $this->character,
+            'showMention'                  => true,
+            'extPrevAndNextBtnsUrl'        => '',
             'foreground'                   => $fg,
         ]);
     }

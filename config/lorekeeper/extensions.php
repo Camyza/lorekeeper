@@ -109,7 +109,7 @@ return [
 
     // Character Foregrounds - Uri, Frankensteins, Camy
     'character_foregrounds' => [
-        'enabled' => 1, // 0 for disabled
-        'profiles_enabled' => 1 // 0 to disable this effect on Character Profiles (versus their masterlist page)
+        'enabled'          => 1, // 0 for disabled
+        'profiles_enabled' => 1, // 0 to disable this effect on Character Profiles (versus their masterlist page)
     ],
 ];
