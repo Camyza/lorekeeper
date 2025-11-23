@@ -21,17 +21,38 @@
 
     @include('character._header', ['character' => $character])
 
-    <div class="mb-3">
-        <div class="text-center">
-            <a href="{{ $character->image->canViewFull(Auth::check() ? Auth::user() : null) && file_exists(public_path($character->image->imageDirectory . '/' . $character->image->fullsizeFileName)) ? $character->image->fullsizeUrl : $character->image->imageUrl }}"
-                data-lightbox="entry" data-title="{{ $character->fullName }}">
-                <img src="{{ $character->image->canViewFull(Auth::check() ? Auth::user() : null) && file_exists(public_path($character->image->imageDirectory . '/' . $character->image->fullsizeFileName)) ? $character->image->fullsizeUrl : $character->image->imageUrl }}"
-                    class="image img-fluid" alt="{{ $character->fullName }}" />
-            </a>
+    {{-- Main Image --}}
+    <div class="row mb-3">
+        <div class="col-md-7">
+            @if (isset($foreground) && is_array($foreground) && Config::get('lorekeeper.extensions.character_foregrounds.enabled'))
+                <div class="text-center" style="position: relative; display: inline-block;">
+                    <!-- Foreground Overlays -->
+                    @foreach ($foreground as $data)
+                        <div
+                            style="background-image: url('{{ asset('images/data/items/foregrounds/' . $data['item_id'] . '/' . $data['tag_id'] . '/' . $data['tag_id'] . '-image.png') }}'); position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-repeat: no-repeat; z-index: {{ $loop->index + 2 }};">
+                        </div>
+                    @endforeach
+                    <a href="{{ $character->image->canViewFull(Auth::check() ? Auth::user() : null) && file_exists(public_path($character->image->imageDirectory . '/' . $character->image->fullsizeFileName)) ? $character->image->fullsizeUrl : $character->image->imageUrl }}"
+                        data-lightbox="entry" data-title="{{ $character->fullName }}">
+                        <img src="{{ $character->image->canViewFull(Auth::check() ? Auth::user() : null) && file_exists(public_path($character->image->imageDirectory . '/' . $character->image->fullsizeFileName)) ? $character->image->fullsizeUrl : $character->image->imageUrl }}"
+                            class="image" alt="{{ $character->fullName }}" />
+                    </a>
+                </div>
+            @else
+                {{-- Original Main Image --}}
+                <div class="text-center">
+                    <a href="{{ $character->image->canViewFull(Auth::check() ? Auth::user() : null) && file_exists(public_path($character->image->imageDirectory . '/' . $character->image->fullsizeFileName)) ? $character->image->fullsizeUrl : $character->image->imageUrl }}"
+                        data-lightbox="entry" data-title="{{ $character->fullName }}">
+                        <img src="{{ $character->image->canViewFull(Auth::check() ? Auth::user() : null) && file_exists(public_path($character->image->imageDirectory . '/' . $character->image->fullsizeFileName)) ? $character->image->fullsizeUrl : $character->image->imageUrl }}"
+                            class="image" alt="{{ $character->fullName }}" />
+                    </a>
+                </div>
+            @endif
+            @if ($character->image->canViewFull(Auth::check() ? Auth::user() : null) && file_exists(public_path($character->image->imageDirectory . '/' . $character->image->fullsizeFileName)))
+                <div class="text-right">You are viewing the full-size image. <a href="{{ $character->image->imageUrl }}">View watermarked image</a>?</div>
+            @endif
         </div>
-        @if ($character->image->canViewFull(Auth::check() ? Auth::user() : null) && file_exists(public_path($character->image->imageDirectory . '/' . $character->image->fullsizeFileName)))
-            <div class="text-right">You are viewing the full-size image. <a href="{{ $character->image->imageUrl }}">View watermarked image</a>?</div>
-        @endif
+        @include('character._image_info', ['image' => $character->image])
     </div>
 
     {{-- Bio --}}
