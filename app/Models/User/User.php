@@ -339,15 +339,17 @@ class User extends Authenticatable implements MustVerifyEmail {
         return ($this->is_banned ? '<strike>' : '').'<a href="'.$this->url.'" class="display-user" style="'.($this->rank->color ? 'color: #'.$this->rank->color.';' : '').($this->is_deactivated ? 'opacity: 0.5;' : '').'"><i class="'.($this->rank->icon ? $this->rank->icon : 'fas fa-user').' mr-1" style="opacity: 50%;"></i>'.$this->name.'</a>'.($this->is_banned ? '</strike>' : '');
     }
 
-        /**
+    /**
      * Displays the user's deviantart, linked to their profile page.
      *
      * @return string
      */
-    public function getDisplayNameDeviantartAttribute()
-    {
-        if($this->profile->deviantart) return ($this->displayname.' ('.$this->profile->deviantart.')');
-        else return ($this->displayName);
+    public function getDisplayNameDeviantartAttribute() {
+        if ($this->profile->deviantart) {
+            return $this->displayname.' ('.$this->profile->deviantart.')';
+        } else {
+            return $this->displayName;
+        }
     }
 
     /**
@@ -355,22 +357,25 @@ class User extends Authenticatable implements MustVerifyEmail {
      *
      * @return string
      */
-    public function getDisplayBlueskyAttribute()
-    {
-        if($this->profile->bluesky) return ($this->displayBluesky.' ('.$this->profile->bluesky.')');
-        else return ($this->displayBluesky);
+    public function getDisplayBlueskyAttribute() {
+        if ($this->profile->bluesky) {
+            return $this->displayBluesky.' ('.$this->profile->bluesky.')';
+        } else {
+            return $this->displayBluesky;
+        }
     }
-
 
     /**
      * Displays the user's deviantart, linked to their profile page.
      *
      * @return string
      */
-    public function getDisplayToyhouseAttribute()
-    {
-        if($this->profile->toyhouse) return ($this->displayToyhouse.' ('.$this->profile->toyhouse.')');
-        else return ($this->displayToyhouse);
+    public function getDisplayToyhouseAttribute() {
+        if ($this->profile->toyhouse) {
+            return $this->displayToyhouse.' ('.$this->profile->toyhouse.')';
+        } else {
+            return $this->displayToyhouse;
+        }
     }
 
     /**
