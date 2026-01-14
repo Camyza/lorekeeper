@@ -12,7 +12,7 @@
         <!-- User Icon -->
         <img src="{{ $user->avatarUrl }}" class="img-fluid rounded-circle" style="max-height: 125px;" alt="{{ $user->name }}'s Avatar">
     </div>
-    
+
 
     <div class="col">
         <!-- Username & optional FTO Badge -->
@@ -76,22 +76,22 @@
                 <div class="col-12">
                     <h5>Socials</h5>
                 </div>
-			</div>
+            </div>
             <div class="row w-100">
                 <div class="col-12">
-                    @if($user->profile->deviantart)
-                         <a class="card-link" href="http://deviantart.com/{{$user->profile->deviantart }}">{!! $user->profile->deviantart !!}@dA</a>
+                    @if ($user->profile->deviantart)
+                        <a class="card-link" href="http://deviantart.com/{{ $user->profile->deviantart }}">{!! $user->profile->deviantart !!}@dA</a>
                     @endif
-                    @if($user->profile->bluesky)
+                    @if ($user->profile->bluesky)
                         <a class="card-link" href="https://bsky.app/profile/{{ $user->profile->bluesky }}">{{ $bluesky_username }}@Bsky</a>
                     @endif
-                    @if($user->profile->toyhouse)
-                        <a class="card-link" href="https://toyhou.se/{{$user->profile->toyhouse }}">{!! $user->profile->toyhouse !!}@TH</a>
+                    @if ($user->profile->toyhouse)
+                        <a class="card-link" href="https://toyhou.se/{{ $user->profile->toyhouse }}">{!! $user->profile->toyhouse !!}@TH</a>
                     @endif
                 </div>
             </div>
         </div>
-        
+
     </div>
 </div>
 
@@ -184,13 +184,13 @@
         </div>
         <div class="row w-100">
             <div class="col-12">
-                    @if($user->profile->deviantart)
+                    @if ($user->profile->deviantart)
                         <a class="card-link" href="http://deviantart.com/{{$user->profile->deviantart }}">{!! $user->profile->deviantart !!}@dA</a>
                     @endif
-                    @if($user->profile->bluesky)
+                    @if ($user->profile->bluesky)
                          <a class="card-link" href="https://bsky.app/profile/{{ $user->profile->bluesky }}">{{ $bluesky_username }}@Bsky</a>
                     @endif
-                    @if($user->profile->toyhouse)
+                    @if ($user->profile->toyhouse)
                          <a class="card-link" href="https://toyhou.se/{{$user->profile->toyhouse }}">{!! $user->profile->toyhouse !!}@TH</a>
                     @endif
             </div>
