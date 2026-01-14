@@ -63,6 +63,21 @@
         <h3>Profile</h3>
         {!! Form::open(['url' => 'account/profile']) !!}
         <div class="form-group">
+            {!! Form::label('Deviantart') !!} {!! add_help('Please put in your deviantart username only.') !!}
+            {!! Form::text('deviantart', Auth::user()->profile->deviantart, ['class' => 'form-control']) !!}
+            <br>
+            {!! Form::label('Bluesky') !!} {!! add_help('Please include everything AFTER the profile/ for Bluesky link to work.  If you have a custom domain, this should still work.') !!}
+            {!! Form::text('bluesky', Auth::user()->profile->bluesky, ['class' => 'form-control']) !!}
+            <br>
+            {!! Form::label('Toyhouse') !!} {!! add_help('Please put in your deviantart username only.') !!}
+            {!! Form::text('toyhouse', Auth::user()->profile->toyhouse, ['class' => 'form-control']) !!}
+            <br>
+            <div class="text-right">
+                {!! Form::submit('Edit', ['class' => 'btn btn-primary']) !!}
+            </div>
+            {!! Form::close() !!}
+        </div>
+        <div class="form-group">
             {!! Form::label('text', 'Profile Text') !!}
             {!! Form::textarea('text', Auth::user()->profile->text, ['class' => 'form-control wysiwyg']) !!}
         </div>

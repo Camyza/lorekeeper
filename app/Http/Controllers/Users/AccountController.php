@@ -74,6 +74,9 @@ class AccountController extends Controller {
         Auth::user()->profile->update([
             'text'        => $request->get('text'),
             'parsed_text' => parse($request->get('text')),
+            'deviantart'  => $request->get('deviantart'), 
+            'bluesky'     => $request->get('bluesky'), 
+            'toyhouse'    => $request->get('toyhouse'), 
         ]);
         flash('Profile updated successfully.')->success();
 

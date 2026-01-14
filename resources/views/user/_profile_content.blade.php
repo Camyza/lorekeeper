@@ -1,3 +1,8 @@
+@php
+    // Extract just the username from the full username handle for bluesky to make it pretty and like the others. I know, this is messy.
+    $bluesky_username = explode('.', $user->profile->bluesky)[0];
+@endphp
+
 @if ($deactivated)
     <div style="filter:grayscale(1); opacity:0.75">
 @endif
@@ -7,6 +12,7 @@
         <!-- User Icon -->
         <img src="{{ $user->avatarUrl }}" class="img-fluid rounded-circle" style="max-height: 125px;" alt="{{ $user->name }}'s Avatar">
     </div>
+    
 
     <div class="col">
         <!-- Username & optional FTO Badge -->
@@ -66,7 +72,26 @@
                     <div class="col-md-8 col-8">{!! $user->birthdayDisplay !!}</div>
                 </div>
             @endif
+            <div class="row w-100">
+                <div class="col-12">
+                    <h5>Socials</h5>
+                </div>
+			</div>
+            <div class="row w-100">
+                <div class="col-12">
+                    @if($user->profile->deviantart)
+                         <a class="card-link" href="http://deviantart.com/{{$user->profile->deviantart }}">{!! $user->profile->deviantart !!}@dA</a>
+                    @endif
+                    @if($user->profile->bluesky)
+                        <a class="card-link" href="https://bsky.app/profile/{{ $user->profile->bluesky }}">{{ $bluesky_username }}@Bsky</a>
+                    @endif
+                    @if($user->profile->toyhouse)
+                        <a class="card-link" href="https://toyhou.se/{{$user->profile->toyhouse }}">{!! $user->profile->toyhouse !!}@TH</a>
+                    @endif
+                </div>
+            </div>
         </div>
+        
     </div>
 </div>
 
@@ -144,6 +169,36 @@
 @endforeach
 
 <div class="text-right"><a href="{{ $user->url . '/characters' }}">View all...</a></div>
+
+<hr class="mb-5" />
+
+
+
+{{-- Optional bottom area, you can delete or hide the top one and unhide this one by uncommenting.  This will also be noted on the wiki on how to do this if you're not sure.
+<div class="card">
+    <div class="card-body">
+        <div class="row w-100">
+            <div class="col-12">
+                <h5 class="card-title">Social Links</h5>
+            </div>
+        </div>
+        <div class="row w-100">
+            <div class="col-12">
+                    @if($user->profile->deviantart)
+                        <a class="card-link" href="http://deviantart.com/{{$user->profile->deviantart }}">{!! $user->profile->deviantart !!}@dA</a>
+                    @endif
+                    @if($user->profile->bluesky)
+                         <a class="card-link" href="https://bsky.app/profile/{{ $user->profile->bluesky }}">{{ $bluesky_username }}@Bsky</a>
+                    @endif
+                    @if($user->profile->toyhouse)
+                         <a class="card-link" href="https://toyhou.se/{{$user->profile->toyhouse }}">{!! $user->profile->toyhouse !!}@TH</a>
+                    @endif
+            </div>
+        </div>
+    </div>
+</div> 
+--}}
+
 <hr class="mb-5" />
 
 <div class="row col-12">
