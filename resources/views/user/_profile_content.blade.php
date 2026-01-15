@@ -77,21 +77,21 @@
                     <h5>Socials</h5>
                 </div>
             </div>
-			@if ($user->profile->deviantart || $user->profile->bluesky || $user->profile->toyhouse)
-            <div class="row w-100">
-                <div class="col-12">
-                    @if ($user->profile->deviantart)
-                        <a class="card-link" href="http://deviantart.com/{{ $user->profile->deviantart }}">{!! $user->profile->deviantart !!}@dA</a>
-                    @endif
-                    @if ($user->profile->bluesky)
-                        <a class="card-link" href="https://bsky.app/profile/{{ $user->profile->bluesky }}">{{ $bluesky_username }}@Bsky</a>
-                    @endif
-                    @if ($user->profile->toyhouse)
-                        <a class="card-link" href="https://toyhou.se/{{ $user->profile->toyhouse }}">{!! $user->profile->toyhouse !!}@TH</a>
-                    @endif
+            @if ($user->profile->deviantart || $user->profile->bluesky || $user->profile->toyhouse)
+                <div class="row w-100">
+                    <div class="col-12">
+                        @if ($user->profile->deviantart)
+                            <a class="card-link" href="http://deviantart.com/{{ $user->profile->deviantart }}">{!! $user->profile->deviantart !!}@dA</a>
+                        @endif
+                        @if ($user->profile->bluesky)
+                            <a class="card-link" href="https://bsky.app/profile/{{ $user->profile->bluesky }}">{{ $bluesky_username }}@Bsky</a>
+                        @endif
+                        @if ($user->profile->toyhouse)
+                            <a class="card-link" href="https://toyhou.se/{{ $user->profile->toyhouse }}">{!! $user->profile->toyhouse !!}@TH</a>
+                        @endif
+                    </div>
                 </div>
-            </div>
-			@endif
+            @endif
         </div>
 
     </div>
