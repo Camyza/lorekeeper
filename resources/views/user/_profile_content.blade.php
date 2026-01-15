@@ -77,6 +77,7 @@
                     <h5>Socials</h5>
                 </div>
             </div>
+			@if ($user->profile->deviantart || $user->profile->bluesky || $user->profile->toyhouse)
             <div class="row w-100">
                 <div class="col-12">
                     @if ($user->profile->deviantart)
@@ -90,6 +91,7 @@
                     @endif
                 </div>
             </div>
+			@endif
         </div>
 
     </div>
@@ -175,6 +177,7 @@
 
 
 {{-- Optional bottom area, you can delete or hide the top one and unhide this one by uncommenting.  This will also be noted on the wiki on how to do this if you're not sure.
+@if ($user->profile->deviantart || $user->profile->bluesky || $user->profile->toyhouse)
 <div class="card">
     <div class="card-body">
         <div class="row w-100">
@@ -197,6 +200,7 @@
         </div>
     </div>
 </div> 
+@endif
 --}}
 
 <hr class="mb-5" />
