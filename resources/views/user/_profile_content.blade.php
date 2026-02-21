@@ -174,8 +174,6 @@
 
 <hr class="mb-5" />
 
-
-
 {{-- Optional bottom area, you can delete or hide the top one and unhide this one by uncommenting.  This will also be noted on the wiki on how to do this if you're not sure.
 @if ($user->profile->deviantart || $user->profile->bluesky || $user->profile->toyhouse)
 <div class="card">
