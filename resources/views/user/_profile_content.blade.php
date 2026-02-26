@@ -25,13 +25,13 @@
                 </div>
             @endif
             @if (Auth::check() && Auth::user()->id != $user->id)
-				{!! Form::open(['route' => ['user.watch', $user->id], 'class' => 'd-inline']) !!}
-					<button type="submit" class="btn {{ Auth::user()->isWatching($user->id) ? 'btn-outline-danger' : 'btn-primary' }} float-md-right">
-						<i class="fas {{ Auth::user()->isWatching($user->id) ? 'fa-eye-slash' : 'fa-eye' }} mr-1"></i>
-						{{ Auth::user()->isWatching($user->id) ? 'Unwatch' : 'Watch' }}
-					</button>
-				{!! Form::close() !!}
-			@endif
+                {!! Form::open(['route' => ['user.watch', $user->id], 'class' => 'd-inline']) !!}
+                <button type="submit" class="btn {{ Auth::user()->isWatching($user->id) ? 'btn-outline-danger' : 'btn-primary' }} float-md-right">
+                    <i class="fas {{ Auth::user()->isWatching($user->id) ? 'fa-eye-slash' : 'fa-eye' }} mr-1"></i>
+                    {{ Auth::user()->isWatching($user->id) ? 'Unwatch' : 'Watch' }}
+                </button>
+                {!! Form::close() !!}
+            @endif
         </div>
 
         <!-- User Information -->
