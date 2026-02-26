@@ -66,6 +66,15 @@ class AccountController extends Controller {
     }
 
     /**
+     * Shows the user watching page.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+    public function getWatching() {
+        return view('account.watching');
+    }
+
+    /**
      * Edits the user's profile.
      *
      * @return \Illuminate\Http\RedirectResponse

@@ -174,6 +174,9 @@
                             <a class="dropdown-item" href="{{ Auth::user()->url }}">
                                 Profile
                             </a>
+                            <a class="dropdown-item" href="{{ url('account/watching') }}">
+                                Watching
+                            </a>
                             <a class="dropdown-item" href="{{ url('notifications') }}">
                                 Notifications
                             </a>

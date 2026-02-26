@@ -34,9 +34,19 @@ class HomeController extends Controller {
             $gallerySubmissions = [];
         }
 
+        $user = Auth::check() ? Auth::user() : null;
+        $watchedSubmissions = [];
+        
+        if ($user) {
+            $followingIds = $user->follows()->pluck('following_user_id');
+            
+            $watchedSubmissions = GallerySubmission::whereIn('user_id', $followingIds)->with(['gallery', 'user'])->visible($user)->latest()->take(8)->get();
+        }
+
         return view('welcome', [
             'about'               => SitePage::where('key', 'about')->first(),
             'gallerySubmissions'  => $gallerySubmissions,
+            'watchedSubmissions' => $watchedSubmissions,
         ]);
     }
 

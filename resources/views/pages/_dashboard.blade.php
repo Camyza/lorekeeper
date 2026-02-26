@@ -58,5 +58,6 @@
         </div>
     </div>
 </div>
+@include('widgets._recent_watching_submissions', ['gallerySubmissions' => $watchedSubmissions])
 
 @include('widgets._recent_gallery_submissions', ['gallerySubmissions' => $gallerySubmissions])

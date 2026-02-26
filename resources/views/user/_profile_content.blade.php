@@ -21,9 +21,17 @@
 
             @if ($user->settings->is_fto)
                 <div class="col-md-1 text-center">
-                    <span class="btn badge-success float-md-right" data-toggle="tooltip" title="This user has not owned any characters from this world before.">FTO</span>
+                    <span class="btn badge-success float-md-right mr-1" data-toggle="tooltip" title="This user has not owned any characters from this world before.">FTO</span>
                 </div>
             @endif
+            @if (Auth::check() && Auth::user()->id != $user->id)
+				{!! Form::open(['route' => ['user.watch', $user->id], 'class' => 'd-inline']) !!}
+					<button type="submit" class="btn {{ Auth::user()->isWatching($user->id) ? 'btn-outline-danger' : 'btn-primary' }} float-md-right">
+						<i class="fas {{ Auth::user()->isWatching($user->id) ? 'fa-eye-slash' : 'fa-eye' }} mr-1"></i>
+						{{ Auth::user()->isWatching($user->id) ? 'Unwatch' : 'Watch' }}
+					</button>
+				{!! Form::close() !!}
+			@endif
         </div>
 
         <!-- User Information -->

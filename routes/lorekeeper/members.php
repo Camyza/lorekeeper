@@ -52,6 +52,9 @@ Route::group(['prefix' => 'account', 'namespace' => 'Users'], function () {
     Route::post('bookmarks/edit/{id}', 'BookmarkController@postCreateEditBookmark');
     Route::get('bookmarks/delete/{id}', 'BookmarkController@getDeleteBookmark');
     Route::post('bookmarks/delete/{id}', 'BookmarkController@postDeleteBookmark');
+
+    Route::get('watching', 'WatchController@getWatching');
+    Route::post('watch/{id}', 'WatchController@postWatch')->name('user.watch');
 });
 
 Route::group(['prefix' => 'inventory', 'namespace' => 'Users'], function () {
