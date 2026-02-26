@@ -209,15 +209,15 @@ class User extends Authenticatable implements MustVerifyEmail {
      * Gets all of a user's list of people they follow from database.
      */
     public function follows() {
-        return $this->belongsToMany(User::class, 'follows', 'user_id', 'following_user_id')->withTimestamps();
+        return $this->belongsToMany(self::class, 'follows', 'user_id', 'following_user_id')->withTimestamps();
     }
 
     /**
      * Checks to see who the user is watching.
+     *
+     * @param mixed $targetId
      */
-
-    public function isWatching($targetId)
-    {
+    public function isWatching($targetId) {
         return $this->follows()->where('following_user_id', $targetId)->exists();
     }
 

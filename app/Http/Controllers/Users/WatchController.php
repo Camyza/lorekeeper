@@ -1,21 +1,15 @@
 <?php
 
 namespace App\Http\Controllers\Users;
+
 use App\Http\Controllers\Controller;
-use App\Models\Character\Character;
-use App\Models\Submission\Submission;
-use App\Models\User\User;
-use App\Services\SubmissionManager;
-use App\Models\Gallery\Gallery;
-use App\Models\Gallery\GalleryCharacter;
 use App\Models\Gallery\GallerySubmission;
 use App\Models\Prompt\Prompt;
-
+use App\Models\User\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class WatchController extends Controller
-{
+class WatchController extends Controller {
     /*
     |--------------------------------------------------------------------------
     | Watch Controller
@@ -42,12 +36,13 @@ class WatchController extends Controller
         ]);
     }
 
-	/**
-     * Toggle of the watch and unwatch
+    /**
+     * Toggle of the watch and unwatch.
+     *
+     * @param mixed $id
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
     public function postWatch(Request $request, $id) {
         $userToWatch = User::find($id);
 
@@ -56,7 +51,7 @@ class WatchController extends Controller
         }
 
         auth()->user()->follows()->toggle($userToWatch->id);
-        
+
         return back();
     }
 }
