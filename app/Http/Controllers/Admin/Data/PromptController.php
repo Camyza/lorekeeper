@@ -10,6 +10,7 @@ use App\Models\Loot\LootTable;
 use App\Models\Prompt\Prompt;
 use App\Models\Prompt\PromptCategory;
 use App\Services\PromptService;
+use App\Models\Raffle\Raffle;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
