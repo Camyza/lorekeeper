@@ -30,7 +30,7 @@ class FeatureService extends Service {
      * @param array                 $data
      * @param \App\Models\User\User $user
      *
-     * @return \App\Models\Feature\FeatureCategory|bool
+     * @return bool|FeatureCategory
      */
     public function createFeatureCategory($data, $user) {
         DB::beginTransaction();
@@ -69,11 +69,11 @@ class FeatureService extends Service {
     /**
      * Update a category.
      *
-     * @param \App\Models\Feature\FeatureCategory $category
-     * @param array                               $data
-     * @param \App\Models\User\User               $user
+     * @param FeatureCategory       $category
+     * @param array                 $data
+     * @param \App\Models\User\User $user
      *
-     * @return \App\Models\Feature\FeatureCategory|bool
+     * @return bool|FeatureCategory
      */
     public function updateFeatureCategory($category, $data, $user) {
         DB::beginTransaction();
@@ -100,11 +100,7 @@ class FeatureService extends Service {
                 throw new \Exception('Failed to log admin action.');
             }
 
-            if (!$this->logAdminAction($user, 'Updated Feature Category', 'Updated '.$category->displayName)) {
-                throw new \Exception('Failed to log admin action.');
-            }
-
-            if ($category) {
+            if ($image) {
                 $this->handleImage($image, $category->categoryImagePath, $category->categoryImageFileName);
             }
 
@@ -119,8 +115,8 @@ class FeatureService extends Service {
     /**
      * Delete a category.
      *
-     * @param \App\Models\Feature\FeatureCategory $category
-     * @param mixed                               $user
+     * @param FeatureCategory $category
+     * @param mixed           $user
      *
      * @return bool
      */
@@ -188,7 +184,7 @@ class FeatureService extends Service {
      * @param array                 $data
      * @param \App\Models\User\User $user
      *
-     * @return \App\Models\Feature\Feature|bool
+     * @return bool|Feature
      */
     public function createFeature($data, $user) {
         DB::beginTransaction();
@@ -253,11 +249,11 @@ class FeatureService extends Service {
     /**
      * Updates a feature.
      *
-     * @param \App\Models\Feature\Feature $feature
-     * @param array                       $data
-     * @param \App\Models\User\User       $user
+     * @param Feature               $feature
+     * @param array                 $data
+     * @param \App\Models\User\User $user
      *
-     * @return \App\Models\Feature\Feature|bool
+     * @return bool|Feature
      */
     public function updateFeature($feature, $data, $user) {
         DB::beginTransaction();
@@ -293,7 +289,7 @@ class FeatureService extends Service {
                 }
             }
 
-            $data = $this->populateData($data);
+            $data = $this->populateData($data, $feature);
 
             $image = null;
             if (isset($data['image']) && $data['image']) {
@@ -309,7 +305,7 @@ class FeatureService extends Service {
                 throw new \Exception('Failed to log admin action.');
             }
 
-            if ($feature) {
+            if ($image) {
                 $this->handleImage($image, $feature->imagePath, $feature->imageFileName);
             }
 
@@ -324,8 +320,8 @@ class FeatureService extends Service {
     /**
      * Deletes a feature.
      *
-     * @param \App\Models\Feature\Feature $feature
-     * @param mixed                       $user
+     * @param Feature $feature
+     * @param mixed   $user
      *
      * @return bool
      */
@@ -358,8 +354,8 @@ class FeatureService extends Service {
     /**
      * Handle category data.
      *
-     * @param array                                    $data
-     * @param \App\Models\Feature\FeatureCategory|null $category
+     * @param array                $data
+     * @param FeatureCategory|null $category
      *
      * @return array
      */
@@ -386,8 +382,8 @@ class FeatureService extends Service {
     /**
      * Processes user input for creating/updating a feature.
      *
-     * @param array                       $data
-     * @param \App\Models\Feature\Feature $feature
+     * @param array   $data
+     * @param Feature $feature
      *
      * @return array
      */

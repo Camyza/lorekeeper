@@ -28,8 +28,8 @@ class HomeController extends Controller {
      */
     public function getIndex() {
         if (config('lorekeeper.extensions.show_all_recent_submissions.enable')) {
-            $query = GallerySubmission::visible(Auth::check() ? Auth::user() : null)->accepted()->orderBy('created_at', 'DESC');
-            $gallerySubmissions = $query->get()->take(8);
+            $query = GallerySubmission::visible(Auth::user() ?? null)->accepted()->orderBy('created_at', 'DESC');
+            $gallerySubmissions = $query->take(8)->withDisplayData(Auth::user() ?? null)->get();
         } else {
             $gallerySubmissions = [];
         }
@@ -68,7 +68,7 @@ class HomeController extends Controller {
         }
 
         // Redirect to the provider's authentication page
-        return $service->getAuthRedirect($provider); //Socialite::driver($provider)->redirect();
+        return $service->getAuthRedirect($provider); // Socialite::driver($provider)->redirect();
     }
 
     /**
@@ -185,10 +185,10 @@ class HomeController extends Controller {
         // I think there's no harm in linking multiple of the same site as people may want their activity separated into an ARPG account.
         // Uncomment the following to restrict to one account per site, however.
         // Check if the user already has a username associated with their account
-        //if(DB::table('user_aliases')->where('site', $provider)->where('user_id', $user->id)->exists()) {
+        // if(DB::table('user_aliases')->where('site', $provider)->where('user_id', $user->id)->exists()) {
         //    $this->error = 'You already have a username associated with this website linked to your account.';
         //    return false;
-        //}
+        // }
 
         return true;
     }
