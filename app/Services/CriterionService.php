@@ -323,7 +323,7 @@ class CriterionService extends Service {
         // clear out old relationships
         $entity->criteria()->delete();
 
-        //letting the two of them coexist if need be
+        // letting the two of them coexist if need be
         if (isset($data['default_criteria'])) {
             foreach (array_filter($data['default_criteria']) as $key => $toggle) {
                 $default = CriterionDefault::find($key);
@@ -351,7 +351,7 @@ class CriterionService extends Service {
         }
     }
 
-    //defaults
+    // defaults
 
     /**
      * Create a default.

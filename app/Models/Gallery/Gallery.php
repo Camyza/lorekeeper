@@ -102,9 +102,9 @@ class Gallery extends Model {
     public function submissions() {
         return $this->hasMany(GallerySubmission::class, 'gallery_id')->visible()->orderBy('created_at', 'DESC');
     }
-	
-	/**
-	* Get the submissions that belong specifically
+
+    /**
+     * Get the submissions that belong specifically
      * to children of this gallery.
      * (This is a builder, not a relation. Just put
      * up here to be next to the submissions relation.).
