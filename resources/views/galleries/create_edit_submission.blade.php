@@ -318,7 +318,7 @@
         </div>
 
         @include('galleries._character_select', ['characters' => $characters])
-		
+
         <div class="collaborator-row hide mb-2">
             {!! Form::select('collaborator_id[]', $users, null, ['class' => 'form-control mr-2 collaborator-select', 'placeholder' => 'Select User']) !!}
             <div class="d-flex">
